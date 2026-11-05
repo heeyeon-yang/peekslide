@@ -6,7 +6,7 @@
   let scope = 'all', cur = 1, st = 0;
   const pages = () => scope === 'all' ? rng([1, D.total]) : rng(partById(scope).range);
   const steps = n => info(n).steps || [];
-  const card = n => `<a class="card" href="#/p/${n}"><div class="th"><span>${n}</span><img loading="lazy" alt="" src="${D.img.replace('{n}', n)}" onerror="this.remove()"></div><div class="cap"><b>p.${n}</b>${D.pages[n]?.title || ''}</div></a>`;
+  const card = (n, i) => `<a class="card" style="--i:${Math.min(i, 24)}" href="#/p/${n}"><div class="th"><span>${n}</span><img loading="lazy" alt="" src="${D.img.replace('{n}', n)}" onerror="this.remove()"></div><div class="cap"><b>p.${n}</b>${D.pages[n]?.title || ''}</div></a>`;
   const head = (t, sub) => `<h1>${t}</h1><p>${sub}</p>`;
   function grid() {
     $('#chips').innerHTML = [['all', '전체보기'], ...D.parts.map(p => [p.id, p.title])]
@@ -106,10 +106,5 @@
   });
   addEventListener('hashchange', route);
   new ResizeObserver(fit).observe($('#area'));
-  $('#grid').addEventListener('mousemove', e => {
-    const c = e.target.closest('.card'); if (!c) return;
-    const r = c.getBoundingClientRect();
-    c.style.setProperty('--mx', `${e.clientX - r.left}px`); c.style.setProperty('--my', `${e.clientY - r.top}px`);
-  });
   if (!location.hash) location.hash = '#/all'; else route();
 })();
