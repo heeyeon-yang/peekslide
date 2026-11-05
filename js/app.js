@@ -8,7 +8,8 @@
   const steps = n => info(n).steps || [];
   const card = (n, i) => `<a class="card" style="--i:${Math.min(i, 24)}" href="#/p/${n}"><div class="th"><span>${n}</span><img loading="lazy" alt="" src="${D.img.replace('{n}', n)}" onerror="this.remove()"></div><div class="cap"><b>p.${n}</b>${D.pages[n]?.title || ''}</div></a>`;
   const name = p => p.title.replace(/^\d+\.\s*/, '');
-  const sec = p => `<div class="sec-row"><h2>${name(p)}</h2>${p.desc ? `<span class="desc">${p.desc}</span>` : ''}<span class="tag">${p.range[0]}–${p.range[1]}p</span></div>`;
+  const num = p => `<i class="no">${p.id}</i>`;
+  const sec = p => `<div class="sec-row"><h2>${num(p)}${name(p)}</h2>${p.desc ? `<span class="desc">${p.desc}</span>` : ''}<span class="tag">${p.range[0]}–${p.range[1]}p</span></div>`;
   const list = p => `<div class="cards">${rng(p.range).map(card).join('')}</div>`;
   const chips = $('#chips');
   chips.innerHTML = '<i id="ink"></i>' + [['all', '전체보기'], ...D.parts.map(p => [p.id, name(p)])]
@@ -26,8 +27,8 @@
   function grid() {
     markChip();
     $('#grid').innerHTML = scope === 'all'
-      ? `<h1 class="main-title">${D.title}</h1>` + D.parts.map(p => sec(p) + list(p)).join('')
-      : `<div class="sec-row single"><h1>${name(partById(scope))}</h1>${partById(scope).desc ? `<span class="desc">${partById(scope).desc}</span>` : ''}<span class="tag">${partById(scope).range[0]}–${partById(scope).range[1]}p</span></div>` + list(partById(scope));
+      ? `<div class="main-header"><h1 class="main-title">${D.title}</h1><p class="main-desc">전체 슬라이드를 훑어보고, 파트별로 골라 볼 수 있습니다.</p></div>` + D.parts.map(p => sec(p) + list(p)).join('')
+      : `<div class="sec-row single"><h1>${num(partById(scope))}${name(partById(scope))}</h1>${partById(scope).desc ? `<span class="desc">${partById(scope).desc}</span>` : ''}<span class="tag">${partById(scope).range[0]}–${partById(scope).range[1]}p</span></div>` + list(partById(scope));
   }
   const fit = () => {
     const a = $('#area'), k = Math.min(a.clientWidth / 1920, a.clientHeight / 1080);
