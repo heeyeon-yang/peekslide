@@ -1,11 +1,11 @@
 body{transition:background .3s,color .3s}
 .btn,.chip,.nav,.card,#toast{transition:background-color .2s,border-color .2s,color .2s,transform .2s,box-shadow .25s,opacity .25s}
-.btn:hover{background:var(--surface);border-color:var(--muted)}
-.btn.solid{position:relative;overflow:hidden;isolation:isolate;transition:color .3s cubic-bezier(0,.62,.56,1),transform .2s}
-.btn.solid::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--bg);clip-path:circle(0% at calc(100% - 20px) 50%);transition:clip-path .3s cubic-bezier(0,.62,.56,1)}
-.btn.solid:hover{background:var(--text);border-color:var(--text);color:var(--text);transition:color .4s cubic-bezier(.09,.74,.56,1),transform .2s}
-.btn.solid:hover::before{clip-path:circle(150% at calc(100% - 20px) 50%);transition:clip-path .4s cubic-bezier(.09,.74,.56,1)}
+.btn:hover{background:var(--fill)}
 .btn:active{transform:scale(.97)}
+.btn.solid{--dot:20px;--edge:8px;position:relative;overflow:hidden;isolation:isolate;padding:0 calc(var(--edge)*2 + var(--dot)) 0 18px;transition:color .5s cubic-bezier(.5,0,.2,1),transform .2s}
+.btn.solid::before{content:"";position:absolute;z-index:-1;top:calc(50% - var(--dot)/2);right:var(--edge);width:var(--dot);height:var(--dot);border-radius:50%;background:var(--bg);transition:transform .5s cubic-bezier(.5,0,.2,1),background-color .5s cubic-bezier(.5,0,.2,1)}
+.btn.solid:hover{background:var(--text);color:var(--accent-hover)}
+.btn.solid:hover::before{transform:scale(14);background:var(--accent-soft)}
 .chip:hover{background:var(--surface);color:var(--text)}
 .chip.on:hover{background:transparent}
 #ink.ready{transition:transform .4s cubic-bezier(.2,.8,.2,1),width .4s cubic-bezier(.2,.8,.2,1),opacity .2s}

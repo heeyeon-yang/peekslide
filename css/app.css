@@ -3,8 +3,8 @@ html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--text);font-family:var(--font-body);--hh:60px;--r:4px;--ctl:36px;--pad:max(24px,calc((100% - 1280px)/2 + 24px))}
 a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-.btn{height:var(--ctl);display:inline-flex;align-items:center;justify-content:center;padding:0 16px;font:inherit;font-size:14px;font-weight:600;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--text);cursor:pointer}
-.btn.solid{background:var(--text);border-color:var(--text);color:var(--bg)}
+.btn{height:var(--ctl);display:inline-flex;align-items:center;justify-content:center;padding:0 16px;font:inherit;font-size:14px;font-weight:600;border:0;border-radius:var(--r);background:var(--surface);color:var(--text);cursor:pointer}
+.btn.solid{background:var(--text);color:var(--bg)}
 .btn.icon{width:var(--ctl);padding:0}
 body.qa-on #bQ{background:var(--fill)}
 .view-only{display:none}
