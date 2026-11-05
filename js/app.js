@@ -8,12 +8,10 @@
   const steps = n => info(n).steps || [];
   const card = (n, i) => `<a class="card" style="--i:${Math.min(i, 24)}" href="#/p/${n}"><div class="th"><span>${n}</span><img loading="lazy" alt="" src="${D.img.replace('{n}', n)}" onerror="this.remove()"></div><div class="cap"><b>p.${n}</b>${D.pages[n]?.title || ''}</div></a>`;
   const name = p => p.title.replace(/^\d+\.\s*/, '');
-  const num = p => `<i class="no">${p.id}</i>`;
-  const meta = p => `<p class="meta">${p.desc ? `<span>${p.desc}</span>` : ''}<span class="tag">${p.range[0]}–${p.range[1]}p</span></p>`;
-  const sec = (p, tag) => `<${tag}>${num(p)}${name(p)}</${tag}>${meta(p)}`;
+  const sec = p => `<div class="sec-row"><h2>${name(p)}</h2>${p.desc ? `<span class="desc">${p.desc}</span>` : ''}<span class="tag">${p.range[0]}–${p.range[1]}p</span></div>`;
   const list = p => `<div class="cards">${rng(p.range).map(card).join('')}</div>`;
   const chips = $('#chips');
-  chips.innerHTML = '<i id="ink"></i>' + [['all', '전체보기'], ...D.parts.map(p => [p.id, num(p) + name(p)])]
+  chips.innerHTML = '<i id="ink"></i>' + [['all', '전체보기'], ...D.parts.map(p => [p.id, name(p)])]
     .map(([id, t]) => `<a class="chip" data-id="${id}" href="#/${id === 'all' ? 'all' : 'part/' + id}">${t}</a>`).join('');
   function markChip() {
     const ink = $('#ink');
@@ -28,8 +26,8 @@
   function grid() {
     markChip();
     $('#grid').innerHTML = scope === 'all'
-      ? `<h1>${D.title}</h1>` + D.parts.map(p => sec(p, 'h2') + list(p)).join('')
-      : (p => sec(p, 'h1') + list(p))(partById(scope));
+      ? `<h1 class="main-title">${D.title}</h1>` + D.parts.map(p => sec(p) + list(p)).join('')
+      : `<div class="sec-row single"><h1>${name(partById(scope))}</h1>${partById(scope).desc ? `<span class="desc">${partById(scope).desc}</span>` : ''}<span class="tag">${partById(scope).range[0]}–${partById(scope).range[1]}p</span></div>` + list(partById(scope));
   }
   const fit = () => {
     const a = $('#area'), k = Math.min(a.clientWidth / 1920, a.clientHeight / 1080);
