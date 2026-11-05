@@ -7,9 +7,13 @@
   const pages = () => scope === 'all' ? rng([1, D.total]) : rng(partById(scope).range);
   const steps = n => info(n).steps || [];
   const card = (n, i) => `<a class="card" style="--i:${Math.min(i, 24)}" href="#/p/${n}"><div class="th"><span>${n}</span><img loading="lazy" alt="" src="${D.img.replace('{n}', n)}" onerror="this.remove()"></div><div class="cap"><b>p.${n}</b>${D.pages[n]?.title || ''}</div></a>`;
-  const head = (t, sub) => `<h1>${t}</h1><p>${sub}</p>`;
+  const name = p => p.title.replace(/^\d+\.\s*/, '');
+  const num = p => `<i class="no">${p.id}</i>`;
+  const meta = p => `<p class="meta">${p.desc ? `<span>${p.desc}</span>` : ''}<span class="tag">${p.range[0]}–${p.range[1]}p</span></p>`;
+  const sec = (p, tag) => `<${tag}>${num(p)}${name(p)}</${tag}>${meta(p)}`;
+  const list = p => `<div class="cards">${rng(p.range).map(card).join('')}</div>`;
   const chips = $('#chips');
-  chips.innerHTML = '<i id="ink"></i>' + [['all', '전체보기'], ...D.parts.map(p => [p.id, p.title])]
+  chips.innerHTML = '<i id="ink"></i>' + [['all', '전체보기'], ...D.parts.map(p => [p.id, num(p) + name(p)])]
     .map(([id, t]) => `<a class="chip" data-id="${id}" href="#/${id === 'all' ? 'all' : 'part/' + id}">${t}</a>`).join('');
   function markChip() {
     const ink = $('#ink');
@@ -24,8 +28,8 @@
   function grid() {
     markChip();
     $('#grid').innerHTML = scope === 'all'
-      ? head(D.title, D.desc) + D.parts.map(p => `<h2>${p.title}</h2><p>${p.desc || ''} · ${p.range[0]}–${p.range[1]}p</p><div class="cards">${rng(p.range).map(card).join('')}</div>`).join('')
-      : (p => head(p.title, `${p.desc || ''} · ${p.range[0]}–${p.range[1]}p`) + `<div class="cards">${rng(p.range).map(card).join('')}</div>`)(partById(scope));
+      ? `<h1>${D.title}</h1>` + D.parts.map(p => sec(p, 'h2') + list(p)).join('')
+      : (p => sec(p, 'h1') + list(p))(partById(scope));
   }
   const fit = () => {
     const a = $('#area'), k = Math.min(a.clientWidth / 1920, a.clientHeight / 1080);
@@ -86,20 +90,22 @@
   }
   const endPresent = () => { body.classList.remove('present'); if (document.fullscreenElement) document.exitFullscreen(); requestAnimationFrame(fit); };
   document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) { body.classList.remove('present'); requestAnimationFrame(fit); } });
-  const setTheme = t => { root.dataset.theme = t; try { localStorage.setItem('theme', t); } catch (e) {} };
-  const toggleTheme = () => {
-    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  let base = 'light';
+  const setTheme = t => { if (t !== 'blue') base = t; root.dataset.theme = t; try { localStorage.setItem('theme', t); } catch (e) {} };
+  const switchTheme = (next, el) => {
     if (!document.startViewTransition || matchMedia('(prefers-reduced-motion:reduce)').matches) return setTheme(next);
-    const r = $('#bT').getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+    const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
     const rad = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
     document.startViewTransition(() => setTheme(next)).ready.then(() => root.animate(
       { clipPath: [`circle(0 at ${x}px ${y}px)`, `circle(${rad}px at ${x}px ${y}px)`] },
       { duration: 600, easing: 'cubic-bezier(.4,0,.2,1)', pseudoElement: '::view-transition-new(root)' }));
   };
+  const toggleTheme = () => switchTheme(root.dataset.theme === 'dark' ? 'light' : 'dark', $('#bT'));
+  const toggleBlue = () => switchTheme(root.dataset.theme === 'blue' ? base : 'blue', $('#bB'));
   let saved = null; try { saved = localStorage.getItem('theme'); } catch (e) {}
   setTheme(saved || (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light'));
 
-  $('#bT').onclick = toggleTheme; $('#bP').onclick = present;
+  $('#bT').onclick = toggleTheme; $('#bB').onclick = toggleBlue; $('#bP').onclick = present;
   const toggleQA = () => { body.classList.toggle('qa-on'); requestAnimationFrame(fit); };
   const back = () => { location.hash = scope === 'all' ? '#/all' : `#/part/${scope}`; };
   $('#bQ').onclick = toggleQA;
@@ -109,6 +115,7 @@
     if (e.target.tagName === 'VIDEO') return;
     const k = e.key, viewing = body.classList.contains('viewing');
     if (/^t$/i.test(k)) toggleTheme();
+    else if (/^b$/i.test(k)) toggleBlue();
     else if (!viewing) return;
     else if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(k)) { e.preventDefault(); step(1); }
     else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); step(-1); }

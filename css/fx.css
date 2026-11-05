@@ -4,7 +4,7 @@ body{transition:background .3s,color .3s}
 .btn:active{transform:scale(.97)}
 .btn.solid{--dot:20px;--edge:8px;position:relative;overflow:hidden;isolation:isolate;padding:0 calc(var(--edge)*2 + var(--dot)) 0 18px;transition:color .5s cubic-bezier(.5,0,.2,1),transform .2s}
 .btn.solid::before{content:"";position:absolute;z-index:-1;top:calc(50% - var(--dot)/2);right:var(--edge);width:var(--dot);height:var(--dot);border-radius:50%;background:var(--bg);transition:transform .5s cubic-bezier(.5,0,.2,1),background-color .5s cubic-bezier(.5,0,.2,1)}
-.btn.solid:hover{background:var(--text);color:var(--accent-hover)}
+.btn.solid:hover{background:var(--text);color:var(--accent-ink)}
 .btn.solid:hover::before{transform:scale(14);background:var(--accent-soft)}
 .chip:hover{background:var(--surface);color:var(--text)}
 .chip.on:hover{background:transparent}
@@ -30,7 +30,7 @@ body{transition:background .3s,color .3s}
 ::view-transition-old(root){z-index:1}
 ::view-transition-new(root){z-index:2}
 
-#grid>h1,#grid>h2,#grid>p{animation:rise .4s cubic-bezier(.2,.8,.2,1) backwards}
+#grid>h1,#grid>h2,#grid>.meta{animation:rise .4s cubic-bezier(.2,.8,.2,1) backwards}
 .card{animation:rise .45s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--i,0)*18ms)}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}}
 body.viewing #view{animation:enter .3s cubic-bezier(.2,.8,.2,1)}
