@@ -27,7 +27,7 @@
   function grid() {
     markChip();
     $('#grid').innerHTML = scope === 'all'
-      ? `<div class="main-header"><h1 class="main-title">${D.title}</h1><p class="main-desc">전체 슬라이드를 훑어보고, 파트별로 골라 볼 수 있습니다.</p></div>` + D.parts.map(p => sec(p) + list(p)).join('')
+      ? `<div class="main-header"><h1 class="main-title">${D.title}</h1><p class="main-desc">프로젝트에 대한 설명입니다.</p></div>` + D.parts.map(p => sec(p) + list(p)).join('')
       : `<div class="sec-row single"><h1>${num(partById(scope))}${name(partById(scope))}</h1>${partById(scope).desc ? `<span class="desc">${partById(scope).desc}</span>` : ''}<span class="tag">${partById(scope).range[0]}–${partById(scope).range[1]}p</span></div>` + list(partById(scope));
   }
   const fit = () => {
