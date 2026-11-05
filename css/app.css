@@ -11,9 +11,10 @@ body.qa-on #bQ{background:var(--fill)}
 body.viewing .view-only{display:inline-flex}
 
 #top{position:sticky;top:0;z-index:5;height:var(--hh);display:flex;align-items:center;gap:20px;padding:0 var(--pad);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-#chips{flex:1;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
-.chip{display:inline-flex;align-items:center;height:var(--ctl);padding:0 14px;white-space:nowrap;border-radius:var(--r);color:var(--muted);text-decoration:none;font-size:14px;font-weight:500}
-.chip.on{background:var(--fill);color:var(--text);font-weight:600}
+#chips{position:relative;flex:1;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+#ink{position:absolute;left:0;top:0;width:0;height:100%;border-radius:var(--r);background:var(--fill);opacity:0;pointer-events:none}
+.chip{position:relative;z-index:1;display:inline-flex;align-items:center;height:var(--ctl);padding:0 14px;white-space:nowrap;border-radius:var(--r);color:var(--muted);text-decoration:none;font-size:14px;font-weight:500}
+.chip.on{color:var(--text)}
 .tools{display:flex;gap:8px;align-items:center}
 
 #grid{max-width:1280px;margin:0 auto;padding:32px 24px 72px}

@@ -4,6 +4,8 @@ body{transition:background .3s,color .3s}
 .btn.solid:hover{background:color-mix(in srgb,var(--text) 82%,var(--bg));border-color:transparent}
 .btn:active{transform:scale(.97)}
 .chip:hover{background:var(--surface);color:var(--text)}
+.chip.on:hover{background:transparent}
+#ink.ready{transition:transform .4s cubic-bezier(.2,.8,.2,1),width .4s cubic-bezier(.2,.8,.2,1),opacity .2s}
 .nav:hover{background:var(--fill)}
 #area:hover .nav,#area:hover #pos{opacity:1}
 

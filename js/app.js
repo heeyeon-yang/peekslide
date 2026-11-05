@@ -8,9 +8,21 @@
   const steps = n => info(n).steps || [];
   const card = (n, i) => `<a class="card" style="--i:${Math.min(i, 24)}" href="#/p/${n}"><div class="th"><span>${n}</span><img loading="lazy" alt="" src="${D.img.replace('{n}', n)}" onerror="this.remove()"></div><div class="cap"><b>p.${n}</b>${D.pages[n]?.title || ''}</div></a>`;
   const head = (t, sub) => `<h1>${t}</h1><p>${sub}</p>`;
+  const chips = $('#chips');
+  chips.innerHTML = '<i id="ink"></i>' + [['all', '전체보기'], ...D.parts.map(p => [p.id, p.title])]
+    .map(([id, t]) => `<a class="chip" data-id="${id}" href="#/${id === 'all' ? 'all' : 'part/' + id}">${t}</a>`).join('');
+  function markChip() {
+    const ink = $('#ink');
+    chips.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.id === scope));
+    const on = chips.querySelector('.chip.on');
+    ink.style.opacity = on ? 1 : 0;
+    if (!on) return;
+    ink.style.width = on.offsetWidth + 'px';
+    ink.style.transform = `translateX(${on.offsetLeft}px)`;
+    requestAnimationFrame(() => ink.classList.add('ready'));
+  }
   function grid() {
-    $('#chips').innerHTML = [['all', '전체보기'], ...D.parts.map(p => [p.id, p.title])]
-      .map(([id, t]) => `<a class="chip${scope === id ? ' on' : ''}" href="#/${id === 'all' ? 'all' : 'part/' + id}">${t}</a>`).join('');
+    markChip();
     $('#grid').innerHTML = scope === 'all'
       ? head(D.title, D.desc) + D.parts.map(p => `<h2>${p.title}</h2><p>${p.desc || ''} · ${p.range[0]}–${p.range[1]}p</p><div class="cards">${rng(p.range).map(card).join('')}</div>`).join('')
       : (p => head(p.title, `${p.desc || ''} · ${p.range[0]}–${p.range[1]}p`) + `<div class="cards">${rng(p.range).map(card).join('')}</div>`)(partById(scope));
@@ -106,5 +118,7 @@
   });
   addEventListener('hashchange', route);
   new ResizeObserver(fit).observe($('#area'));
+  addEventListener('resize', markChip);
+  document.fonts?.ready.then(markChip);
   if (!location.hash) location.hash = '#/all'; else route();
 })();
