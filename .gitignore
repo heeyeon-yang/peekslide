@@ -1,0 +1,6 @@
+assets/slides/*
+assets/video/*
+!assets/slides/.gitkeep
+!assets/video/.gitkeep
+.DS_Store
+Thumbs.db

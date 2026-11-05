@@ -1,0 +1,19 @@
+@font-face{font-family:"Pretendard";src:local("Pretendard"),url("../assets/fonts/PretendardVariable.woff2") format("woff2");font-weight:45 920;font-display:swap}
+@font-face{font-family:"Paperlogy";src:url("../assets/fonts/Paperlogy-4Regular.ttf") format("truetype");font-weight:400;font-display:swap}
+@font-face{font-family:"Paperlogy";src:url("../assets/fonts/Paperlogy-5Medium.ttf") format("truetype");font-weight:500;font-display:swap}
+@font-face{font-family:"Paperlogy";src:url("../assets/fonts/Paperlogy-7Bold.ttf") format("truetype");font-weight:700;font-display:swap}
+:root{
+  --font-body:"Pretendard",system-ui,sans-serif;
+  --font-head:"Pretendard",system-ui,sans-serif;
+  --font-display:"Paperlogy","Pretendard",system-ui,sans-serif;
+  --bg:#ffffff; --surface:#f5f5f5; --fill:#ebebeb; --line:#dcdcdc;
+  --text:#111111; --muted:#6b6b6b;
+  --accent:#1f5fff; --accent-hover:#1649d6; --accent-soft:#e8efff; --on-accent:#ffffff;
+  --dim:rgba(17,17,17,.48); --shadow:0 10px 28px rgba(17,17,17,.12);
+}
+:root[data-theme="dark"]{
+  --bg:#111111; --surface:#1a1a1a; --fill:#262626; --line:#333333;
+  --text:#f2f2f2; --muted:#a3a3a3;
+  --accent:#6c9cff; --accent-hover:#8db2ff; --accent-soft:#17254f; --on-accent:#111111;
+  --dim:rgba(17,17,17,.72); --shadow:0 10px 28px rgba(0,0,0,.5);
+}
