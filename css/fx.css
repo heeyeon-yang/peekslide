@@ -3,7 +3,7 @@ body{transition:background .3s,color .3s}
 .btn:hover{background:var(--fill)}
 .btn:active{transform:scale(.97)}
 
-/* 발표 모드 버튼 호버 애니메이션 (원 모양 퍼짐 효과 복원) */
+/* 발표 모드 호버 애니메이션 효과 */
 .btn.solid{--dot:20px;--edge:8px;position:relative;overflow:hidden;isolation:isolate;padding:0 calc(var(--edge)*2 + var(--dot)) 0 18px;background:var(--text);color:var(--bg);border-radius:var(--r);transition:color .5s cubic-bezier(.5,0,.2,1),transform .2s}
 .btn.solid::before{content:"";position:absolute;z-index:-1;top:calc(50% - var(--dot)/2);right:var(--edge);width:var(--dot);height:var(--dot);border-radius:50%;background:var(--bg);transition:transform .5s cubic-bezier(.5,0,.2,1),background-color .5s cubic-bezier(.5,0,.2,1)}
 .btn.solid:hover{background:var(--text);color:var(--accent-ink)}
