@@ -28,18 +28,21 @@ body.viewing .view-only{display:inline-flex}
 
 .sec-row{display:flex;align-items:center;gap:14px;margin:clamp(64px,6vw,88px) 0 28px;padding-bottom:16px;border-bottom:1px solid var(--line);width:100%}
 .sec-row.single{margin-top:0}
-.sec-row h1,.sec-row h2{display:flex;align-items:center;font:650 clamp(22px,1.8vw,26px)/1.2 var(--font-head);letter-spacing:-.01em;margin:0}
-.sec-row .desc{color:var(--muted);font-size:clamp(15px,1.1vw,16px);font-weight:400}
+.sec-row h1,.sec-row h2{display:flex;align-items:center;font:700 clamp(22px,1.8vw,26px)/1.2 var(--font-head);letter-spacing:-.01em;margin:0}
+.sec-row .desc{position:relative;top:2px;margin-left:6px;color:var(--muted);font-size:clamp(15px,1.1vw,16px);font-weight:400}
 .sec-row .tag{margin-left:auto}
 
-.no{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--accent-soft);color:var(--accent-ink);font:500 15px var(--font-display);font-style:normal;font-variant-numeric:tabular-nums;margin-right:12px}
+.no{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--accent-soft);color:var(--accent-num);font:600 15px var(--font-head);font-style:normal;font-variant-numeric:tabular-nums;margin-right:12px}
 
 .tag{padding:4px 10px;border-radius:6px;background:var(--surface);color:var(--muted);font-size:12.5px;font-weight:500;letter-spacing:.02em;font-variant-numeric:tabular-nums}
 
 #modes{display:contents}
-.btn.swatch{padding:0 9px;gap:0}
-.swatch svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.swatch svg .d{fill:var(--pv);stroke:none}
+.btn.swatch{padding:0 8px;gap:0}
+.swatch svg{width:20px;height:20px;flex:none}
+.swatch svg .body{stroke:none}
+.swatch svg .d{fill:#fff;opacity:.95}
+.swatch .s1{stop-color:color-mix(in srgb,var(--pv) 45%,#fff)}
+.swatch .s2{stop-color:var(--pv)}
 .swatch .lbl{max-width:0;margin-left:0;overflow:hidden;white-space:nowrap;opacity:0;font-size:13px;color:color-mix(in srgb,var(--pv) 72%,var(--text))}
 .swatch[aria-pressed="true"]{background:color-mix(in srgb,var(--pv) 14%,var(--surface));color:color-mix(in srgb,var(--pv) 72%,var(--text))}
 

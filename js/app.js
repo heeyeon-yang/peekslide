@@ -90,7 +90,7 @@
   const endPresent = () => { body.classList.remove('present'); if (document.fullscreenElement) document.exitFullscreen(); requestAnimationFrame(fit); };
   document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) { body.classList.remove('present'); requestAnimationFrame(fit); } });
   const ACCENTS = [{ id: 'blue', label: 'Blue' }];
-  const ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle class="d" cx="13.5" cy="6.5" r="1.4"/><circle class="d" cx="17.5" cy="10.5" r="1.4"/><circle class="d" cx="8.5" cy="7.5" r="1.4"/><circle class="d" cx="6.5" cy="12.5" r="1.4"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.83-.44-1.12-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.55-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z"/></svg>';
+  const icon = id => `<svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="sw-grad-${id}" x1="0" y1="0" x2="1" y2="1"><stop class="s1" offset="0"/><stop class="s2" offset="1"/></linearGradient></defs><path class="body" style="fill:url(#sw-grad-${id})" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.83-.44-1.12-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.55-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z"/><circle class="d" cx="13.5" cy="6.8" r="1.5"/><circle class="d" cx="17.3" cy="10.7" r="1.5"/><circle class="d" cx="8.5" cy="7.8" r="1.5"/><circle class="d" cx="6.6" cy="12.6" r="1.5"/></svg>`;
   const read = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const save = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
   let modes = $('#modes');
@@ -99,7 +99,7 @@
     modes = Object.assign(document.createElement('div'), { id: 'modes' });
     $('.tools').insertBefore(modes, $('#bT'));
   }
-  modes.innerHTML = ACCENTS.map(a => `<button class="btn swatch" data-mode="${a.id}" aria-pressed="false" aria-label="${a.label} 색상 모드">${ICON}<span class="lbl">${a.label}</span></button>`).join('');
+  modes.innerHTML = ACCENTS.map(a => `<button class="btn swatch" data-mode="${a.id}" aria-pressed="false" aria-label="${a.label} 색상 모드">${icon(a.id)}<span class="lbl">${a.label}</span></button>`).join('');
   const current = () => root.dataset.accent || '';
   const setTheme = t => { root.dataset.theme = t; save('theme', t); };
   const setAccent = id => {
