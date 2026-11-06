@@ -58,12 +58,36 @@
       ((i.links || []).length ? `<h4>링크</h4>` + i.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener">${l.label}</a>`).join('') : '');
     $('#qa').innerHTML = `<h3>${n}. ${i.title}</h3>` + (b || `<p>이 페이지에는 Q&A가 없습니다.</p>`);
   };
-  function view(n, s2 = 0, anim = false) {
+  const cache = new Map();
+  const preload = n => {
+    if (n < 1 || n > D.total) return Promise.resolve();
+    if (!cache.has(n)) {
+      const img = new Image();
+      img.src = D.img.replace('{n}', n);
+      cache.set(n, { img, ready: img.decode().catch(() => {}) });
+    }
+    return cache.get(n).ready;
+  };
+  const prune = n => cache.forEach((_, k) => { if (Math.abs(k - n) > 3) cache.delete(k); });
+  let tok = 0;
+  async function view(n, s2 = 0, anim = false) {
     if (!pages().includes(n)) scope = 'all';
-    const dir = anim ? (n > cur ? ' fwd' : n < cur ? ' back' : '') : '';
+    const t = ++tok;
+    await preload(n);
+    if (t !== tok) return;
+    const stage = $('#stage');
+    if (!$('#fxwrap')) stage.innerHTML = '<div id="fxwrap"></div>';
+    const olds = [...stage.querySelectorAll('.sl')];
+    const el = document.createElement('div');
+    el.className = 'sl' + (anim && olds.length ? ' in' : '');
+    el.innerHTML = media(n);
+    stage.insertBefore(el, $('#fxwrap'));
+    if (el.classList.contains('in')) setTimeout(() => olds.forEach(o => o.remove()), 180);
+    else olds.forEach(o => o.remove());
     cur = n; st = s2;
-    $('#stage').innerHTML = `<div class="sl${dir}">${media(n)}</div><div id="fxwrap"></div>`;
     fx(); qa(n); requestAnimationFrame(fit);
+    prune(n);
+    [n + 1, n - 1, n + 2, n - 2].forEach(preload);
   }
   const step = d => {
     const l = pages(), i = l.indexOf(cur);
@@ -90,7 +114,7 @@
   const endPresent = () => { body.classList.remove('present'); if (document.fullscreenElement) document.exitFullscreen(); requestAnimationFrame(fit); };
   document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) { body.classList.remove('present'); requestAnimationFrame(fit); } });
   const ACCENTS = [{ id: 'blue', label: 'Blue' }];
-  const icon = id => `<svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="sw-grad-${id}" x1="0" y1="0" x2="1" y2="1"><stop class="s1" offset="0"/><stop class="s2" offset="1"/></linearGradient></defs><path class="body" style="fill:url(#sw-grad-${id})" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.83-.44-1.12-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.55-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z"/></svg>`;
+  const icon = () => `<svg viewBox="0 0 24 24" aria-hidden="true"><path class="h" d="M20.2 3.8 13.6 10.4"/><path class="hd" d="M11.2 9.6l3.2 3.2c.3 3.6-2.4 6.6-6.9 6.6-1.9 0-3.4-.5-4.5-1.3 1.6-.6 2.2-2 2.2-3.2 0-2.7 2.6-5.3 6-5.3z"/></svg>`;
   const read = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const save = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
   let modes = $('#modes');

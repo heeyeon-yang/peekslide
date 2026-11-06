@@ -27,13 +27,13 @@ body{transition:background .3s,color .3s}
 @keyframes flow{to{background-position:240px 0}}
 @keyframes twinkle{from{opacity:.25}to{opacity:1}}
 
-/* color swatch: icon at rest, tinted label slides in on hover */
+/* color swatch: gray icon when off, tinted + ringed when on */
 .swatch{--hv:color-mix(in srgb,var(--pv) 9%,transparent)}
 :root[data-theme="dark"] .swatch{--hv:color-mix(in srgb,var(--pv) 24%,transparent)}
-.swatch:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pv) 24%,transparent)}
-:root[data-theme="dark"] .swatch:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pv) 50%,transparent)}
+.swatch:hover{color:var(--pv)}
 .swatch .lbl{transition:max-width .35s ease,opacity .25s ease,margin .35s ease}
 .swatch:hover .lbl{max-width:64px;margin-left:7px;opacity:1}
+.btn.swatch[aria-pressed="true"]{background:color-mix(in srgb,var(--pv) 14%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pv) 35%,transparent)}
 
 .chip:hover{background:var(--surface);color:var(--text)}
 .chip.on:hover{background:transparent}
@@ -64,12 +64,8 @@ body{transition:background .3s,color .3s}
 body.viewing #view{animation:enter .3s cubic-bezier(.2,.8,.2,1)}
 @keyframes enter{from{opacity:0;transform:scale(.985)}}
 
-.sl{animation:fade .22s ease-out}
-.sl.fwd{animation:inR .4s cubic-bezier(.2,.8,.2,1)}
-.sl.back{animation:inL .4s cubic-bezier(.2,.8,.2,1)}
+.sl.in{animation:fade .16s linear}
 @keyframes fade{from{opacity:0}}
-@keyframes inR{from{opacity:0;transform:translateX(64px)}}
-@keyframes inL{from{opacity:0;transform:translateX(-64px)}}
 .dim{animation:fade .25s}
 .ring{animation:ring .35s ease-out}
 @keyframes ring{from{opacity:0;stroke-width:18}}
