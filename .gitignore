@@ -4,3 +4,5 @@ assets/video/*
 !assets/video/.gitkeep
 .DS_Store
 Thumbs.db
+node_modules
+dist
