@@ -2,27 +2,42 @@
 @font-face{font-family:"Paperlogy";src:url("../assets/fonts/Paperlogy-4Regular.ttf") format("truetype");font-weight:400;font-display:swap}
 @font-face{font-family:"Paperlogy";src:url("../assets/fonts/Paperlogy-5Medium.ttf") format("truetype");font-weight:500;font-display:swap}
 @font-face{font-family:"Paperlogy";src:url("../assets/fonts/Paperlogy-7Bold.ttf") format("truetype");font-weight:700;font-display:swap}
+
+/* Two independent axes on <html>:
+   data-theme  = light | dark   (brightness)
+   data-accent = pink | blue    (brand color, each with its own neutrals)
+   To add a color: copy the blue pair below, rename it, add it to ACCENTS in app.js. */
+
 :root{
   --font-body:"Pretendard",system-ui,sans-serif;
   --font-head:"Pretendard",system-ui,sans-serif;
   --font-display:"Paperlogy","Pretendard",system-ui,sans-serif;
+
   --bg:#ffffff; --surface:#f5f5f5; --fill:#ebebeb; --line:#dcdcdc;
   --text:#111111; --muted:#6b6b6b;
-  --accent:#ff3f8c; --accent-mid:#ffa7c7; --accent-soft:#ffe8f1;
-  --accent-ink:color-mix(in srgb,var(--accent) 68%,#000); --on-accent:#ffffff;
+  --accent:#ff3f8c; --on-accent:#ffffff; --ink-base:#000000;
   --dim:rgba(17,17,17,.48); --shadow:0 10px 28px rgba(17,17,17,.12);
+
+  --accent-soft:color-mix(in srgb,var(--accent) 12%,var(--bg));
+  --accent-line:color-mix(in srgb,var(--accent) 28%,transparent);
+  --accent-ink:color-mix(in srgb,var(--accent) 68%,var(--ink-base));
 }
 :root[data-theme="dark"]{
   --bg:#111111; --surface:#1a1a1a; --fill:#262626; --line:#333333;
   --text:#f2f2f2; --muted:#a3a3a3;
-  --accent:#ff6aa6; --accent-mid:#ff9ec2; --accent-soft:#3d1030;
-  --accent-ink:#ff9ec2; --on-accent:#111111;
+  --accent:#ff6aa6; --on-accent:#111111; --ink-base:#ffffff;
   --dim:rgba(17,17,17,.72); --shadow:0 10px 28px rgba(0,0,0,.5);
 }
-:root[data-theme="blue"]{
-  --bg:#eef2f6; --surface:#e3e9f0; --fill:#d9e1eb; --line:#cfd8e4;
-  --text:#162247; --muted:#58647f;
-  --accent:#2f3d86; --accent-mid:#94b9eb; --accent-soft:#d3e2f6;
-  --accent-ink:#2f3d86; --on-accent:#ffffff;
-  --dim:rgba(22,34,71,.55); --shadow:0 10px 28px rgba(22,34,71,.14);
+
+:root[data-accent="blue"]{
+  --surface:#f1f5fb; --fill:#e3eaf6; --line:#d3dcea;
+  --text:#0f1830; --muted:#5b6780;
+  --accent:#2f6bff; --on-accent:#ffffff;
+  --dim:rgba(15,24,48,.52); --shadow:0 10px 28px rgba(15,24,48,.13);
+}
+:root[data-accent="blue"][data-theme="dark"]{
+  --bg:#0d111b; --surface:#141a27; --fill:#1f2738; --line:#2a3449;
+  --text:#eef2fb; --muted:#9aa6bf;
+  --accent:#6d9bff; --on-accent:#0b1020;
+  --dim:rgba(8,11,20,.74); --shadow:0 10px 28px rgba(0,0,0,.55);
 }

@@ -9,7 +9,7 @@
   const card = (n, i) => `<a class="card" style="--i:${Math.min(i, 24)}" href="#/p/${n}"><div class="th"><span>${n}</span><img loading="lazy" alt="" src="${D.img.replace('{n}', n)}" onerror="this.remove()"></div><div class="cap"><b>p.${n}</b>${D.pages[n]?.title || ''}</div></a>`;
   const name = p => p.title.replace(/^\d+\.\s*/, '');
   const num = p => `<i class="no">${p.id}</i>`;
-  const sec = p => `<div class="sec-row"><h2>${num(p)}${name(p)}</h2>${p.desc ? `<span class="desc">${p.desc}</span>` : ''}<span class="tag">${p.range[0]}–${p.range[1]}p</span></div>`;
+  const sec = p => `<div class="sec-row"><h2>${num(p)}${name(p)}</h2>${p.desc ? `<span class="desc">${p.desc}</span>` : ''}<span class="tag">p.${p.range[0]}–${p.range[1]}</span></div>`;
   const list = p => `<div class="cards">${rng(p.range).map(card).join('')}</div>`;
   const chips = $('#chips');
   chips.innerHTML = '<i id="ink"></i>' + [['all', '전체보기'], ...D.parts.map(p => [p.id, name(p)])]
@@ -28,7 +28,7 @@
     markChip();
     $('#grid').innerHTML = scope === 'all'
       ? `<div class="main-header"><h1 class="main-title">${D.title}</h1><p class="main-desc">프로젝트에 대한 설명입니다.</p></div>` + D.parts.map(p => sec(p) + list(p)).join('')
-      : `<div class="sec-row single"><h1>${num(partById(scope))}${name(partById(scope))}</h1>${partById(scope).desc ? `<span class="desc">${partById(scope).desc}</span>` : ''}<span class="tag">${partById(scope).range[0]}–${partById(scope).range[1]}p</span></div>` + list(partById(scope));
+      : `<div class="sec-row single"><h1>${num(partById(scope))}${name(partById(scope))}</h1>${partById(scope).desc ? `<span class="desc">${partById(scope).desc}</span>` : ''}<span class="tag">p.${partById(scope).range[0]}–${partById(scope).range[1]}</span></div>` + list(partById(scope));
   }
   const fit = () => {
     const a = $('#area'), k = Math.min(a.clientWidth / 1920, a.clientHeight / 1080);
@@ -89,22 +89,42 @@
   }
   const endPresent = () => { body.classList.remove('present'); if (document.fullscreenElement) document.exitFullscreen(); requestAnimationFrame(fit); };
   document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) { body.classList.remove('present'); requestAnimationFrame(fit); } });
-  let base = 'light';
-  const setTheme = t => { if (t !== 'blue') base = t; root.dataset.theme = t; try { localStorage.setItem('theme', t); } catch (e) {} };
-  const switchTheme = (next, el) => {
-    if (!document.startViewTransition || matchMedia('(prefers-reduced-motion:reduce)').matches) return setTheme(next);
+  const ACCENTS = [
+    { id: 'pink', label: 'Pink', color: '#ff3f8c' },
+    { id: 'blue', label: 'Blue', color: '#2f6bff' }
+  ];
+  const read = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const save = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const accentOf = id => ACCENTS.find(a => a.id === id) || ACCENTS[0];
+  const nextAccent = () => ACCENTS[(ACCENTS.indexOf(accentOf(root.dataset.accent)) + 1) % ACCENTS.length];
+  const setTheme = t => { root.dataset.theme = t; save('theme', t); };
+  const setAccent = id => {
+    root.dataset.accent = accentOf(id).id; save('accent', root.dataset.accent);
+    const n = nextAccent(), b = $('#bB');
+    b.style.setProperty('--pv', n.color);
+    b.querySelector('.lbl').textContent = n.label;
+    b.setAttribute('aria-label', `${n.label} 색상으로 변경`);
+  };
+  const transition = (apply, el) => {
+    if (!document.startViewTransition || matchMedia('(prefers-reduced-motion:reduce)').matches) return apply();
     const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
     const rad = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-    document.startViewTransition(() => setTheme(next)).ready.then(() => root.animate(
+    document.startViewTransition(apply).ready.then(() => root.animate(
       { clipPath: [`circle(0 at ${x}px ${y}px)`, `circle(${rad}px at ${x}px ${y}px)`] },
       { duration: 600, easing: 'cubic-bezier(.4,0,.2,1)', pseudoElement: '::view-transition-new(root)' }));
   };
-  const toggleTheme = () => switchTheme(root.dataset.theme === 'dark' ? 'light' : 'dark', $('#bT'));
-  const toggleBlue = () => switchTheme(root.dataset.theme === 'blue' ? base : 'blue', $('#bB'));
-  let saved = null; try { saved = localStorage.getItem('theme'); } catch (e) {}
-  setTheme(saved || (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light'));
+  const toggleTheme = () => transition(() => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'), $('#bT'));
+  const cycleAccent = () => transition(() => setAccent(nextAccent().id), $('#bB'));
+  const savedTheme = read('theme'), savedAccent = read('accent');
+  setTheme(['light', 'dark'].includes(savedTheme) ? savedTheme : (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light'));
+  setAccent(savedAccent || (savedTheme === 'blue' ? 'blue' : 'pink'));
 
-  $('#bT').onclick = toggleTheme; $('#bB').onclick = toggleBlue; $('#bP').onclick = present;
+  document.querySelectorAll('.btn').forEach(b => {
+    const at = e => { const r = b.getBoundingClientRect(); b.style.setProperty('--x', e.clientX - r.left + 'px'); b.style.setProperty('--y', e.clientY - r.top + 'px'); };
+    b.addEventListener('pointerenter', at); b.addEventListener('pointerleave', at);
+  });
+
+  $('#bT').onclick = toggleTheme; $('#bB').onclick = cycleAccent; $('#bP').onclick = present;
   const toggleQA = () => { body.classList.toggle('qa-on'); requestAnimationFrame(fit); };
   const back = () => { location.hash = scope === 'all' ? '#/all' : `#/part/${scope}`; };
   $('#bQ').onclick = toggleQA;
@@ -114,7 +134,7 @@
     if (e.target.tagName === 'VIDEO') return;
     const k = e.key, viewing = body.classList.contains('viewing');
     if (/^t$/i.test(k)) toggleTheme();
-    else if (/^b$/i.test(k)) toggleBlue();
+    else if (/^b$/i.test(k)) cycleAccent();
     else if (!viewing) return;
     else if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(k)) { e.preventDefault(); step(1); }
     else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); step(-1); }

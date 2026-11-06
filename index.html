@@ -10,22 +10,22 @@
 </head>
 <body>
 <header id="top">
-  <nav id="chips" aria-label="보기 범위"></nav>
-  <div class="tools">
-    <button id="bQ" class="btn view-only"><span>해설 보기</span><i class="star-icon">✦</i></button>
-    <button id="bB" class="btn blue-btn icon" aria-label="블루 모드"><i class="sw-single"></i><span class="lbl">Blue</span></button>
-    <button id="bT" class="btn icon" aria-label="테마 전환"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><mask id="mm"><rect width="24" height="24" fill="#fff"/><circle class="cut" cx="24" cy="0" r="6" fill="#000"/></mask><circle class="core" cx="12" cy="12" r="5" fill="currentColor" mask="url(#mm)"/><path class="rays" d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
-    <button id="bP" class="btn solid"><span>발표 모드</span><i class="star-icon">✦</i></button>
-  </div>
+<nav id="chips" aria-label="보기 범위"></nav>
+<div class="tools">
+<button id="bQ" class="btn magic view-only"><span>해설 보기</span></button>
+<div id="modes"></div>
+<button id="bT" class="btn icon" aria-label="테마 전환"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><mask id="mm"><rect width="24" height="24" fill="#fff"/><circle class="cut" cx="24" cy="0" r="6" fill="#000"/></mask><circle class="core" cx="12" cy="12" r="5" fill="currentColor" mask="url(#mm)"/><path class="rays" d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+<button id="bP" class="btn solid"><span>발표 모드</span></button>
+</div>
 </header>
 <main id="grid"></main>
 <footer id="foot">PeekSlide</footer>
 <section id="view">
-    <div id="vbody">
-    <div id="area"><div id="stage"></div><div id="pos"></div>
-      <button class="nav prev" id="bPrev" aria-label="이전">‹</button><button class="nav next" id="bNext" aria-label="다음">›</button></div>
-    <aside id="qa"></aside>
-  </div>
+<div id="vbody">
+<div id="area"><div id="stage"></div><div id="pos"></div>
+<button class="nav prev" id="bPrev" aria-label="이전">‹</button><button class="nav next" id="bNext" aria-label="다음">›</button></div>
+<aside id="qa"></aside>
+</div>
 </section>
 <div id="toast"></div>
 <script src="data/slides.js"></script>
