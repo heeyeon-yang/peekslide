@@ -11,7 +11,8 @@ body{transition:background .3s,color .3s}
 
 /* present button: black at rest, accent fill on hover, sparkles only while hovered */
 .btn.solid{--hv:var(--accent);padding:0 20px;background:var(--text);color:var(--bg);transition:color .25s,transform .2s}
-.btn.solid:hover{color:var(--on-accent)}
+/* swap the base color after the ripple lands so no dark fringe shows at the rounded edge */
+.btn.solid:hover{background:var(--accent);color:var(--on-accent);transition:background-color 0s .45s,color .25s,transform .2s}
 .btn.solid::after,.btn.solid>span::after{content:"";position:absolute;background:currentColor;-webkit-mask:var(--spark) center/contain no-repeat;mask:var(--spark) center/contain no-repeat;opacity:0;transform:scale(0) rotate(-60deg);transition:opacity .25s,transform .5s cubic-bezier(.3,1.5,.5,1)}
 .btn.solid::after{width:9px;height:9px;right:7px;top:6px}
 .btn.solid>span::after{width:6px;height:6px;left:9px;bottom:7px;transition-delay:.08s}
@@ -26,11 +27,13 @@ body{transition:background .3s,color .3s}
 @keyframes flow{to{background-position:240px 0}}
 @keyframes twinkle{from{opacity:.25}to{opacity:1}}
 
-/* color swatch: dot at rest, tinted label slides in on hover */
-.swatch{--hv:color-mix(in srgb,var(--pv) 16%,transparent)}
-.swatch:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pv) 38%,transparent)}
+/* color swatch: icon at rest, tinted label slides in on hover */
+.swatch{--hv:color-mix(in srgb,var(--pv) 9%,transparent)}
+:root[data-theme="dark"] .swatch{--hv:color-mix(in srgb,var(--pv) 24%,transparent)}
+.swatch:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pv) 24%,transparent)}
+:root[data-theme="dark"] .swatch:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pv) 50%,transparent)}
 .swatch .lbl{transition:max-width .35s ease,opacity .25s ease,margin .35s ease}
-.swatch:hover .lbl{max-width:64px;margin-left:8px;opacity:1}
+.swatch:hover .lbl{max-width:64px;margin-left:7px;opacity:1}
 
 .chip:hover{background:var(--surface);color:var(--text)}
 .chip.on:hover{background:transparent}

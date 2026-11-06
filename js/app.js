@@ -89,21 +89,24 @@
   }
   const endPresent = () => { body.classList.remove('present'); if (document.fullscreenElement) document.exitFullscreen(); requestAnimationFrame(fit); };
   document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) { body.classList.remove('present'); requestAnimationFrame(fit); } });
-  const ACCENTS = [
-    { id: 'pink', label: 'Pink', color: '#ff3f8c' },
-    { id: 'blue', label: 'Blue', color: '#2f6bff' }
-  ];
+  const ACCENTS = [{ id: 'blue', label: 'Blue' }];
+  const ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle class="d" cx="13.5" cy="6.5" r="1.4"/><circle class="d" cx="17.5" cy="10.5" r="1.4"/><circle class="d" cx="8.5" cy="7.5" r="1.4"/><circle class="d" cx="6.5" cy="12.5" r="1.4"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.83-.44-1.12-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.55-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z"/></svg>';
   const read = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const save = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
-  const accentOf = id => ACCENTS.find(a => a.id === id) || ACCENTS[0];
-  const nextAccent = () => ACCENTS[(ACCENTS.indexOf(accentOf(root.dataset.accent)) + 1) % ACCENTS.length];
+  let modes = $('#modes');
+  if (!modes) {
+    const old = $('#bB'); if (old) old.remove();
+    modes = Object.assign(document.createElement('div'), { id: 'modes' });
+    $('.tools').insertBefore(modes, $('#bT'));
+  }
+  modes.innerHTML = ACCENTS.map(a => `<button class="btn swatch" data-mode="${a.id}" aria-pressed="false" aria-label="${a.label} 색상 모드">${ICON}<span class="lbl">${a.label}</span></button>`).join('');
+  const current = () => root.dataset.accent || '';
   const setTheme = t => { root.dataset.theme = t; save('theme', t); };
   const setAccent = id => {
-    root.dataset.accent = accentOf(id).id; save('accent', root.dataset.accent);
-    const n = nextAccent(), b = $('#bB');
-    b.style.setProperty('--pv', n.color);
-    b.querySelector('.lbl').textContent = n.label;
-    b.setAttribute('aria-label', `${n.label} 색상으로 변경`);
+    id = ACCENTS.some(a => a.id === id) ? id : '';
+    if (id) root.dataset.accent = id; else delete root.dataset.accent;
+    save('accent', id);
+    modes.querySelectorAll('.swatch').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === id)));
   };
   const transition = (apply, el) => {
     if (!document.startViewTransition || matchMedia('(prefers-reduced-motion:reduce)').matches) return apply();
@@ -114,17 +117,24 @@
       { duration: 600, easing: 'cubic-bezier(.4,0,.2,1)', pseudoElement: '::view-transition-new(root)' }));
   };
   const toggleTheme = () => transition(() => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'), $('#bT'));
-  const cycleAccent = () => transition(() => setAccent(nextAccent().id), $('#bB'));
+  const cycleAccent = () => {
+    const ids = ['', ...ACCENTS.map(a => a.id)];
+    transition(() => setAccent(ids[(ids.indexOf(current()) + 1) % ids.length]), modes.querySelector('.swatch') || $('#bT'));
+  };
+  modes.addEventListener('click', e => {
+    const b = e.target.closest('.swatch');
+    if (b) transition(() => setAccent(current() === b.dataset.mode ? '' : b.dataset.mode), b);
+  });
   const savedTheme = read('theme'), savedAccent = read('accent');
   setTheme(['light', 'dark'].includes(savedTheme) ? savedTheme : (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light'));
-  setAccent(savedAccent || (savedTheme === 'blue' ? 'blue' : 'pink'));
+  setAccent(savedAccent !== null ? savedAccent : (savedTheme === 'blue' ? 'blue' : ''));
 
   document.querySelectorAll('.btn').forEach(b => {
     const at = e => { const r = b.getBoundingClientRect(); b.style.setProperty('--x', e.clientX - r.left + 'px'); b.style.setProperty('--y', e.clientY - r.top + 'px'); };
     b.addEventListener('pointerenter', at); b.addEventListener('pointerleave', at);
   });
 
-  $('#bT').onclick = toggleTheme; $('#bB').onclick = cycleAccent; $('#bP').onclick = present;
+  $('#bT').onclick = toggleTheme; $('#bP').onclick = present;
   const toggleQA = () => { body.classList.toggle('qa-on'); requestAnimationFrame(fit); };
   const back = () => { location.hash = scope === 'all' ? '#/all' : `#/part/${scope}`; };
   $('#bQ').onclick = toggleQA;

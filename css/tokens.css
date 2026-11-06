@@ -5,8 +5,9 @@
 
 /* Two independent axes on <html>:
    data-theme  = light | dark   (brightness)
-   data-accent = pink | blue    (brand color, each with its own neutrals)
-   To add a color: copy the blue pair below, rename it, add it to ACCENTS in app.js. */
+   data-accent = (none) | blue  (optional color mode; none = the default pink look)
+   To add a mode: copy the blue blocks below (palette + swatch color), rename,
+   then add { id, label } to ACCENTS in app.js. */
 
 :root{
   --font-body:"Pretendard",system-ui,sans-serif;
@@ -41,3 +42,7 @@
   --accent:#6d9bff; --on-accent:#0b1020;
   --dim:rgba(8,11,20,.74); --shadow:0 10px 28px rgba(0,0,0,.55);
 }
+
+/* swatch button color per mode (lighter in dark so it stays visible) */
+[data-mode="blue"]{--pv:#2f6bff}
+:root[data-theme="dark"] [data-mode="blue"]{--pv:#7aa5ff}
