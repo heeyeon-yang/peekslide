@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "node scripts/sync.mjs && vite",
+    "build": "node scripts/build.mjs",
     "preview": "vite preview",
-    "convert": "node scripts/convert.mjs"
+    "convert": "node scripts/convert.mjs",
+    "sync": "node scripts/sync.mjs"
   },
   "repository": {
     "type": "git",
