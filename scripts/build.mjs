@@ -21,6 +21,7 @@ cp("assets/fonts");
 for (const n of Object.keys(pub)) {
   cp(`projects/${n}/slides`);
   cp(`projects/${n}/video`);
+  cp(`projects/${n}/layers`);
 }
 writeDecks(path.join(dist, "data", "decks.js"), pub);
 console.log(`build: ${Object.keys(pub).join(", ") || "(none)"} -> dist`);

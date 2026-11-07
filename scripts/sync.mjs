@@ -36,7 +36,7 @@ export function readDecks() {
     const j = JSON.parse(fs.readFileSync(f, "utf8"));
     delete j.password;
     const d = {
-      title: e.name, desc: "", accent: "", publish: false, total: 0, parts: [], pages: {},
+      title: e.name, desc: "", accent: "", publish: false, total: 0, parts: [], groups: [], pages: {},
       ...j,
       id: e.name,
       base: `projects/${e.name}/`,
@@ -46,6 +46,13 @@ export function readDecks() {
     if (!d.total) console.warn(`warn: ${e.name} has no total, run convert first`);
     for (const p of d.parts) {
       if (p.range[1] > d.total) console.warn(`warn: ${e.name} part ${p.id} range exceeds total ${d.total}`);
+    }
+    const seen = new Set();
+    for (const g of d.groups) {
+      for (const p of g) {
+        if (p < 1 || p > d.total || seen.has(p)) console.warn(`warn: ${e.name} groups has invalid or duplicate page ${p}`);
+        seen.add(p);
+      }
     }
     decks[e.name] = d;
   }
@@ -61,7 +68,7 @@ export function sync() {
   const decks = readDecks();
   const names = Object.keys(decks);
   for (const n of names) {
-    const want = "source.pdf\npassword.txt\n" + (decks[n].publish ? "" : "slides/\nvideo/\n");
+    const want = "source.pdf\npassword.txt\n" + (decks[n].publish ? "" : "slides/\nvideo/\nlayers/\n");
     const f = path.join(PROJ, n, ".gitignore");
     if (!fs.existsSync(f) || fs.readFileSync(f, "utf8") !== want) fs.writeFileSync(f, want);
   }
