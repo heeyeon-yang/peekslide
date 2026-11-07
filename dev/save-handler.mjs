@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { ROOT, sync } from "./sync.mjs";
+import { ROOT, sync } from "../scripts/sync.mjs";
 
 const num = Number.isFinite;
 const okBox = b => Array.isArray(b) && b.length === 4 && b.every(num);
