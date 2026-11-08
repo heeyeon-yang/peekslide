@@ -315,6 +315,7 @@
   document.querySelectorAll('.btn').forEach(bindBtn);
 
   $('#bT').onclick = toggleTheme; $('#bP').onclick = present;
+  $('#bA').onclick = () => PS.admin ? PS.admin.open() : toast('관리자 로그인은 준비 중입니다.');
   const toggleQA = () => { body.classList.toggle('qa-on'); requestAnimationFrame(fit); };
   const back = () => { location.hash = scope === 'all' ? H('all') : H('part', scope); };
   $('#bQ').onclick = toggleQA;
@@ -341,7 +342,7 @@
   document.fonts?.ready.then(markChip);
   // 로컬 편집 모듈이 붙는 접점. 배포본에서는 PS.edit 가 null 이다.
   const PS = window.PS = {
-    $, body, root, toast, fx, spot, steps, curPage, pathD, EDEF, edit: null,
+    $, body, root, toast, fx, spot, steps, curPage, pathD, EDEF, edit: null, admin: null,
     get D() { return D; }, get st() { return st; }, set st(v) { st = v; }
   };
   route();
