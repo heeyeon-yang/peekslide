@@ -17,6 +17,9 @@ const cp = src => {
 cp("index.html");
 cp("css");
 cp("js");
+// 관리자 편집기: 로그인 후에만 불러온다. dev/ 의 나머지는 복사하지 않는다.
+fs.mkdirSync(path.join(dist, "admin"), { recursive: true });
+for (const f of ["edit.js", "edit.css"]) fs.copyFileSync(path.join(ROOT, "dev", f), path.join(dist, "admin", f));
 cp("assets/fonts");
 for (const n of Object.keys(pub)) {
   cp(`projects/${n}/slides`);

@@ -5,10 +5,31 @@
   const put = t => { try { t ? sessionStorage.setItem(K, t) : sessionStorage.removeItem(K); } catch (e) {} };
   const exp = t => { try { return JSON.parse(atob(t.split('.')[0].replace(/-/g, '+').replace(/_/g, '/'))).exp; } catch (e) { return 0; } };
   const valid = () => { const t = tok(); return !!t && exp(t) > Date.now(); };
+
+  // 편집기는 로그인한 뒤에만 내려받는다 (일반 방문자에게는 전달되지 않음)
+  let loading = null;
+  const loadEditor = () => {
+    if (PS.edit) return Promise.resolve();
+    return loading || (loading = new Promise((ok, no) => {
+      const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'admin/edit.css'; document.head.appendChild(l);
+      const s = document.createElement('script'); s.src = 'admin/edit.js';
+      s.onload = ok;
+      s.onerror = () => { loading = null; l.remove(); s.remove(); no(new Error('editor')); };
+      document.body.appendChild(s);
+    }));
+  };
+
+  const eb = document.createElement('button');
+  eb.id = 'bE'; eb.className = 'btn'; eb.textContent = '편집';
+  $('.tools').insertBefore(eb, $('#bQ'));
+  eb.onclick = () => PS.edit ? PS.edit.on() : PS.toast('편집기를 불러오는 중입니다. 잠시 뒤 다시 눌러 주세요.');
+
   const sync = () => {
     const on = valid();
     PS.body.classList.toggle('admin', on);
     $('#bA').textContent = on ? '관리자 ●' : '관리자';
+    if (on) loadEditor().catch(() => PS.toast('편집기를 불러오지 못했습니다.'));
+    else if (PS.edit && PS.edit.active()) PS.edit.off();
   };
 
   function ask() {
@@ -41,5 +62,6 @@
       ask();
     }
   };
+  setInterval(() => { if (!valid() && PS.body.classList.contains('admin')) sync(); }, 30000);
   sync();
 })();

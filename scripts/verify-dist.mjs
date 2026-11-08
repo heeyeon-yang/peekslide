@@ -7,6 +7,7 @@ const ROOT = path.resolve(import.meta.dirname, "..");
 const dist = path.join(ROOT, "dist");
 const errors = [];
 const fail = m => errors.push(m);
+const ALLOW = new Set(["admin/edit.js", "admin/edit.css"]); // 관리자 편집기 (로그인 후에만 로드)
 
 const walk = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(e =>
   e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
@@ -25,6 +26,7 @@ if (fs.existsSync(pj)) for (const n of fs.readdirSync(pj)) {
 
 // 2) 경로 검사: 편집 코드, PDF 원본, 비공개 프로젝트 폴더
 for (const f of files.map(rel)) {
+  if (ALLOW.has(f)) continue;
   if (/^dev\//.test(f) || /(^|\/)edit\.(js|css)$/.test(f)) fail(`편집 파일 포함: ${f}`);
   if (/\.pdf$/i.test(f)) fail(`PDF 포함: ${f}`);
   for (const n of priv) if (f.startsWith(`projects/${n}/`)) fail(`비공개 프로젝트 파일 포함: ${f}`);
@@ -33,6 +35,7 @@ for (const f of files.map(rel)) {
 // 3) 내용 검사: 편집 API/브리지 흔적
 const text = files.filter(f => /\.(js|css|html)$/.test(f));
 for (const f of text) {
+  if (ALLOW.has(rel(f))) continue;
   const s = fs.readFileSync(f, "utf8");
   for (const tok of ["__save", "peekslide-editor", "dev/edit", "epRender", "edSave"])
     if (s.includes(tok)) fail(`'${tok}' 발견: ${rel(f)}`);

@@ -121,3 +121,6 @@ dialog.adm input{width:100%;height:var(--ctl);padding:0 12px;border:1px solid va
 dialog.adm .err{min-height:20px;margin:8px 0 0;color:#d33;font-size:13px}
 dialog.adm .row{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
 dialog.adm .btn:disabled{opacity:.5;cursor:default}
+#bE{display:none}
+body.admin.viewing #bE{display:inline-flex}
+body.edit #bE{display:none}

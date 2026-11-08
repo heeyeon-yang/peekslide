@@ -108,7 +108,7 @@
   }
   const edAll = () => { edOverlay(); epRender(); edApply(false); };
   function editOn() {
-    if (!DEV || !PS.D || body.classList.contains('present') || !$('#edit')) return;
+    if (!(DEV || PS.admin?.token()) || !PS.D || body.classList.contains('present') || !$('#edit')) return;
     const pn = curPage();
     ed = { deck: PS.D, pn, orig: clone(PS.D.pages[pn] || {}), g: edLoad(pn), i: 0, sel: null, tool: 'box', pts: [], hover: null, hl: null, d: null, undo: [], co: '', t0: 0, dirty: false, codeOpen: false, pt: 0 };
     body.classList.add('edit');
@@ -128,12 +128,15 @@
   async function edSave() {
     const steps2 = edSteps(), pn = ed.pn, d = ed.deck;
     try {
-      const r = await fetch('/__save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deck: d.id, page: pn, steps: steps2 }) });
+      const tk = PS.admin?.token();
+      if (!DEV && !tk) { toast('로그인이 만료되었습니다. 관리자 버튼으로 다시 로그인하세요.'); return; }
+      const r = await fetch(DEV ? '/__save' : PS.admin.api + '/save', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(DEV ? {} : { Authorization: 'Bearer ' + tk }) }, body: JSON.stringify({ deck: d.id, page: pn, steps: steps2 }) });
+      if (r.status === 401) { toast('로그인이 만료되었습니다. 관리자 버튼으로 다시 로그인하세요.'); return; }
       if (!r.ok) throw new Error('save');
       if (!ed) return;
       ed.orig = { ...ed.orig, steps: steps2 }; ed.dirty = false;
       epCode(); toast(`저장했습니다: ${pn}페이지 ${steps2.length}단계`);
-    } catch (e) { toast('저장은 npm run dev 에서만 됩니다. 코드 보기에서 복사해 붙여넣으세요'); }
+    } catch (e) { toast(DEV ? '저장은 npm run dev 에서만 됩니다. 코드 보기에서 복사해 붙여넣으세요' : '저장하지 못했습니다. 잠시 뒤 다시 시도하세요'); }
   }
   function edFinish() {
     if (ed.pts.length < 2) { ed.pts = []; ed.hover = null; return edAll(); }
