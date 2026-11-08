@@ -1,6 +1,6 @@
-assets/slides/*
-assets/video/*
-!assets/slides/.gitkeep
-!assets/video/.gitkeep
+data/decks.js
+dist/
+node_modules/
+projects/*/source.pdf
 .DS_Store
 Thumbs.db

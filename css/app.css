@@ -19,6 +19,9 @@ body.viewing .view-only{display:inline-flex}
 .chip:not(:last-child)::after{content:"";position:absolute;right:-2px;top:30%;height:40%;width:1px;background:var(--line);opacity:.7;transition:opacity .2s}
 .chip.on::after,.chip:has(+ .chip.on)::after{opacity:0}
 .chip.on{color:var(--text)}
+.chip[data-id="home"]{margin-right:18px}
+.chip[data-id="home"]:hover{background:transparent;color:var(--accent)}
+.chip[data-id="home"]::after{right:-11px;top:22%;height:56%;opacity:.8!important}
 .tools{display:flex;gap:8px;align-items:center}
 
 #grid{max-width:1440px;margin:0 auto;padding:clamp(40px,5vw,72px) 56px 120px;width:100%}
@@ -37,12 +40,8 @@ body.viewing .view-only{display:inline-flex}
 .tag{padding:4px 10px;border-radius:6px;background:var(--surface);color:var(--muted);font-size:12.5px;font-weight:500;letter-spacing:.02em;font-variant-numeric:tabular-nums}
 
 #modes{display:contents}
-.btn.swatch{padding:0 8px;gap:0}
+.btn.swatch{padding:0 8px;gap:0;color:var(--muted)}
 .swatch svg{width:20px;height:20px;flex:none}
-.swatch svg .body{stroke:none}
-.swatch svg .d{fill:#fff;opacity:.95}
-.swatch .s1{stop-color:color-mix(in srgb,var(--pv) 45%,#fff)}
-.swatch .s2{stop-color:var(--pv)}
 .swatch .lbl{max-width:0;margin-left:0;overflow:hidden;white-space:nowrap;opacity:0;font-size:13px;color:color-mix(in srgb,var(--pv) 72%,var(--text))}
 .swatch[aria-pressed="true"]{background:color-mix(in srgb,var(--pv) 14%,var(--surface));color:color-mix(in srgb,var(--pv) 72%,var(--text))}
 
@@ -53,6 +52,14 @@ body.viewing .view-only{display:inline-flex}
 .th img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .cap{padding:12px 16px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cap b{color:var(--muted);font-weight:600;margin-right:8px}
+
+.gate{max-width:360px;margin:12vh auto 0;text-align:center}
+.gate h2{font:700 clamp(22px,1.8vw,26px)/1.2 var(--font-head);margin:0 0 10px;letter-spacing:-.01em}
+.gate p{color:var(--muted);margin:0 0 22px}
+.gate .row{display:flex;gap:8px}
+.gate input{flex:1;min-width:0;height:var(--ctl);padding:0 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--text);font:inherit;font-size:14px}
+.gate input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.gate .err{min-height:20px;margin:12px 0 0;font-size:13px;color:var(--accent-num)}
 
 #foot{position:fixed;left:0;right:0;bottom:0;z-index:4;height:40px;display:flex;align-items:center;padding:0 var(--pad);border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);color:var(--muted);font-size:13px}
 body.viewing #foot{display:none}
@@ -70,9 +77,11 @@ body.viewing #grid{display:none}
 .vid{position:absolute;border:0;background:#000;border-radius:4px}
 #fxwrap{position:absolute;inset:0;pointer-events:none}
 #fxwrap svg{width:100%;height:100%}
-.dim{fill:var(--dim)}
+#lyrs{position:absolute;inset:0;pointer-events:none}
+.dim{fill:#000}
 .ring{fill:none;stroke:var(--accent);stroke-width:6}
-.nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;padding:0;font-size:26px;line-height:1;opacity:0;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--text);cursor:pointer}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;padding:0;display:grid;place-items:center;opacity:0;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--text);cursor:pointer}
+.nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .prev{left:14px}.next{right:14px}
 #pos{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);padding:5px 12px;border:1px solid var(--line);border-radius:var(--r);background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(6px);font-size:12px;color:var(--muted);opacity:0;pointer-events:none}
 
@@ -84,6 +93,7 @@ body.qa-on #qa{display:block}
 #qa p{color:var(--muted);line-height:1.6;margin:8px 0 0}
 #qa h4{margin:20px 0 6px;font-size:13px;color:var(--muted)}
 #qa a{display:block;color:var(--accent-ink);padding:4px 0}
+
 
 #toast{position:fixed;left:50%;bottom:56px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:var(--r);font-size:14px;opacity:0;pointer-events:none;z-index:20}
 #toast.on{opacity:1;transform:translateX(-50%)}
@@ -99,3 +109,18 @@ body.present #stage{box-shadow:none}
   #grid{padding:30px 20px 64px}.cards{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px}
   #qa{position:fixed;left:0;right:0;bottom:0;width:auto;max-height:55vh;border-left:0;border-top:1px solid var(--line);box-shadow:var(--shadow)}
 }
+
+/* admin: 평소엔 눈에 안 띄게, 로그인하면 강조 */
+#bA{background:transparent;color:var(--muted);font-size:12.5px;font-weight:500;padding:0 10px;opacity:.6}
+#bA:hover{opacity:1}
+body.admin #bA{color:var(--accent-ink);opacity:1;font-weight:600}
+dialog.adm{width:min(360px,calc(100% - 40px));padding:24px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--text);box-shadow:var(--shadow)}
+dialog.adm::backdrop{background:var(--dim)}
+dialog.adm h3{margin:0 0 14px;font:700 17px var(--font-head)}
+dialog.adm input{width:100%;height:var(--ctl);padding:0 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--text);font:inherit}
+dialog.adm .err{min-height:20px;margin:8px 0 0;color:#d33;font-size:13px}
+dialog.adm .row{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+dialog.adm .btn:disabled{opacity:.5;cursor:default}
+#bE{display:none}
+body.admin.viewing #bE{display:inline-flex}
+body.edit #bE{display:none}

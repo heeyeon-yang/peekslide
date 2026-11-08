@@ -1,0 +1,31 @@
+{
+  "name": "peekslide",
+  "version": "1.0.0",
+  "description": "Figma/PDF 슬라이드를 훑어보고(전체/파트별), 발표 모드로 넘기며 클릭 하이라이트를 줄 수 있는 정적 사이트.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node scripts/sync.mjs && vite",
+    "build": "node scripts/build.mjs",
+    "preview": "vite preview",
+    "convert": "node scripts/convert.mjs",
+    "sync": "node scripts/sync.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heeyeon-yang/peekslide.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/heeyeon-yang/peekslide/issues"
+  },
+  "homepage": "https://github.com/heeyeon-yang/peekslide#readme",
+  "devDependencies": {
+    "@napi-rs/canvas": "^1.1.0",
+    "pdfjs-dist": "^6.5.438",
+    "vite": "^8.3.6"
+  }
+}
