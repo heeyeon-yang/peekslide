@@ -28,6 +28,18 @@ jobs:
       - run: npm run build
       - run: node scripts/verify-dist.mjs
 
+      - name: Debug OIDC
+        run: |
+          echo "ROLE=[${{ vars.AWS_ROLE_ARN }}]"
+          echo "REGION=[${{ vars.AWS_REGION }}]"
+          node -e '
+          (async () => {
+            const r = await fetch(process.env.ACTIONS_ID_TOKEN_REQUEST_URL + "&audience=sts.amazonaws.com", { headers: { Authorization: "Bearer " + process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN } });
+            const { value } = await r.json();
+            const c = JSON.parse(Buffer.from(value.split(".")[1], "base64url"));
+            console.log(JSON.stringify({ sub: c.sub, aud: c.aud, iss: c.iss }, null, 2));
+          })();'
+
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
