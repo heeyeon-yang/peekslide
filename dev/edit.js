@@ -5,6 +5,10 @@
   const { $, body, root, toast, fx, spot, steps, curPage, pathD, EDEF } = PS;
   const DEV = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
   let ed = null;
+  // 페이지가 바뀌어 편집이 닫혀도 저장 안 한 변경을 잃지 않도록 메모리에 보관한다.
+  const drafts = new Map();
+  let resume = false;
+  const dkey = (deck, pn) => ((deck && deck.id) || '') + ':' + pn;
   const ep = document.createElement('aside');
   ep.id = 'ep';
   $('#vbody').appendChild(ep);
@@ -97,7 +101,7 @@
       (ed.tool === 'line' ? `<div class="row"><button data-act="finish" class="primary"${ed.pts.length > 1 ? '' : ' disabled'}>선 완료</button><button data-act="cancel-line"${ed.pts.length ? '' : ' disabled'}>취소</button></div>` : '') + '</section>' +
       settings + layerHtml2 +
       `<section><details class="code"${ed.codeOpen ? ' open' : ''}><summary>코드 보기</summary><pre id="epcode"></pre><div class="row"><button data-act="copy">코드 복사</button></div></details>` +
-      `<p class="hint">단축키: 스페이스 미리보기 · Enter 선 완료 · Z 되돌리기 · S 저장 · Esc 닫기</p></section>` +
+      `<p class="hint">단축키: N 새 단계 · D 복제 · B 박스 · L 선 · 스페이스 미리보기 · Enter 선 완료 · Z 되돌리기 · S 저장 · Esc 닫기</p></section>` +
       `<div class="foot"><span id="epstate"></span><button data-act="undo">되돌리기</button><button data-act="play">▶ 미리보기</button><button class="primary" data-act="save">저장</button></div>`;
     epCode();
   }
@@ -111,19 +115,31 @@
     if (!(DEV || PS.admin?.token()) || !PS.D || body.classList.contains('present') || !$('#edit')) return;
     const pn = curPage();
     ed = { deck: PS.D, pn, orig: clone(PS.D.pages[pn] || {}), g: edLoad(pn), i: 0, sel: null, tool: 'box', pts: [], hover: null, hl: null, d: null, undo: [], co: '', t0: 0, dirty: false, codeOpen: false, pt: 0 };
+    const dr = drafts.get(dkey(PS.D, pn));
+    if (dr) {
+      drafts.delete(dkey(PS.D, pn));
+      ed.g = dr.g; ed.i = Math.min(dr.i, dr.g.length - 1); ed.undo = dr.undo; ed.dirty = true;
+      toast('저장하지 않은 변경을 복원했습니다');
+    }
+    resume = false;
     body.classList.add('edit');
     edAll();
   }
-  function editOff() {
+  // discard === true 일 때만 변경을 버린다(닫기 버튼). 다른 경로(페이지 이동 등)는 초안을 보관한다.
+  function editOff(discard) {
     if (!ed) return;
     clearTimeout(ed.pt);
+    const k = dkey(ed.deck, ed.pn);
+    if (ed.dirty && discard !== true) drafts.set(k, { g: clone(ed.g), i: ed.i, undo: ed.undo.slice() });
+    else drafts.delete(k);
+    resume = discard !== true;
     ed.deck.pages[ed.pn] = ed.orig;
     ed = null; body.classList.remove('edit', 'edit-v');
     const o = $('#edit'); if (o) o.innerHTML = '';
   }
   function edExit() {
     if (ed.dirty && !confirm('저장하지 않은 변경이 있습니다. 변경을 버리고 닫을까요?')) return;
-    editOff(); PS.st = 0; fx(false);
+    editOff(true); PS.st = 0; fx(false);
   }
   async function edSave() {
     const steps2 = edSteps(), pn = ed.pn, d = ed.deck;
@@ -133,9 +149,10 @@
       const r = await fetch(DEV ? '/__save' : PS.admin.api + '/save', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(DEV ? {} : { Authorization: 'Bearer ' + tk }) }, body: JSON.stringify({ deck: d.id, page: pn, steps: steps2 }) });
       if (r.status === 401) { toast('로그인이 만료되었습니다. 관리자 버튼으로 다시 로그인하세요.'); return; }
       if (!r.ok) throw new Error('save');
-      if (!ed) return;
-      ed.orig = { ...ed.orig, steps: steps2 }; ed.dirty = false;
-      epCode(); toast(`저장했습니다: ${pn}페이지 ${steps2.length}단계`);
+      drafts.delete(dkey(d, pn));
+      if (ed && ed.pn === pn && ed.deck === d) { ed.orig = { ...ed.orig, steps: steps2 }; ed.dirty = false; epCode(); }
+      else d.pages[pn] = { ...(d.pages[pn] || {}), steps: steps2 };
+      toast(`저장했습니다: ${pn}페이지 ${steps2.length}단계`);
     } catch (e) { toast(DEV ? '저장은 npm run dev 에서만 됩니다. 코드 보기에서 복사해 붙여넣으세요' : '저장하지 못했습니다. 잠시 뒤 다시 시도하세요'); }
   }
   function edFinish() {
@@ -178,9 +195,10 @@
     }
     edAll();
   }
-  const EKEYS = { Escape: 'esc', e: 'exit', b: 'tool-box', l: 'tool-line', Enter: 'finish', '[': 'prev', ']': 'next', Delete: 'delsel', z: 'undo', c: 'copy', s: 'save', ' ': 'play' };
+  const EKEYS = { Escape: 'esc', e: 'exit', n: 'new', d: 'dup', b: 'tool-box', l: 'tool-line', Enter: 'finish', '[': 'prev', ']': 'next', Delete: 'delsel', z: 'undo', c: 'copy', s: 'save', ' ': 'play' };
   function editKey(e) {
-    const k = e.key;
+    const k = e.key, t = e.target;
+    if (t && (t.tagName === 'TEXTAREA' || (t.tagName === 'INPUT' && !['range', 'checkbox', 'color'].includes(t.type)))) return;
     if ((e.ctrlKey || e.metaKey) && /^[zs]$/i.test(k)) { e.preventDefault(); edAct(/^z$/i.test(k) ? 'undo' : 'save'); return; }
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     let a = EKEYS[k] || EKEYS[k.toLowerCase()];
@@ -270,6 +288,13 @@
     edFinish();
   });
   PS.edit = { on: editOn, off: editOff, key: editKey, active: () => !!ed };
+  // 다른 페이지로 넘어가도 편집 모드를 이어간다(app.js의 hashchange 처리가 끝난 뒤 실행).
+  addEventListener('hashchange', () => setTimeout(() => {
+    if (!body.classList.contains('viewing')) { resume = false; return; }
+    if (ed && ed.pn !== curPage()) editOff();
+    if (!ed && resume) editOn();
+  }, 0));
+  addEventListener('beforeunload', e => { if ((ed && ed.dirty) || drafts.size) { e.preventDefault(); e.returnValue = ''; } });
 })();
 
 
