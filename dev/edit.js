@@ -284,10 +284,9 @@
   // 푸터: 새 프로젝트 절차(클릭하면 그 줄만 복사) + 파트 편집 버튼
   f.style.cssText += ';gap:10px;overflow-x:auto;white-space:nowrap';
   const step = (n, c) => `<span>${n}</span><code data-c='${c}' style="cursor:pointer" title="클릭하면 복사">${c}</code>`;
-  f.innerHTML = '<b>새 프로젝트</b>' +
-    step('①', 'git pull --rebase origin main') + '<span>→</span>' +
-    step('②', 'npm run convert -- 이름 "PDF경로"') + '<span>→</span>' +
-    step('③', 'bash scripts/ship.sh "메시지"') +
+  f.innerHTML = '<b>관리자</b>' +
+    step('새 프로젝트', 'bash scripts/add.sh 이름 "PDF경로"') + '<span>·</span>' +
+    step('제목 변경', 'bash scripts/title.sh 프로젝트이름 "새 제목"') +
     '<button id="bParts" class="btn" style="height:28px;font-size:13px;margin-left:auto;flex:none">파트 편집</button>';
   f.onclick = e => {
     if (e.target.closest('#bParts')) return openParts();
