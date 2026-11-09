@@ -275,8 +275,11 @@
 (() => {
   const f = document.getElementById('foot');
   if (!f) return;
-  f.style.whiteSpace = 'nowrap';
-  f.style.overflow = 'hidden';
-  f.style.textOverflow = 'ellipsis';
-  f.innerHTML = '관리자 · ① git pull --rebase origin main ② npm run convert -- 프로젝트 이름 "PDF경로" ③ bash scripts/ship.sh "메시지"';
+  f.style.cssText += ';white-space:normal;height:auto;padding-top:8px;padding-bottom:8px;display:block;line-height:1.7;user-select:all';
+  const cmds = [
+    'git pull --rebase origin main',
+    'npm run convert -- 프로젝트이름 "PDF경로"',
+    'bash scripts/ship.sh "메시지"'
+  ];
+  f.innerHTML = '<b>새 프로젝트</b><br>' + cmds.map(c => `<code style="display:block;user-select:all">${c}</code>`).join('');
 })();
