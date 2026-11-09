@@ -1,4 +1,4 @@
-// dev 전용 편집기. Vite serve 플러그인이 주입하며 build.mjs는 dev/를 dist로 복사하지 않는다.
+// 관리자 편집기. 원본은 dev/edit.js, build가 dist/admin/으로 복사하고 로그인 후에만 로드된다.
 (() => {
   const PS = window.PS;
   if (!PS) return;
@@ -275,11 +275,12 @@
 (() => {
   const f = document.getElementById('foot');
   if (!f) return;
-  f.style.cssText += ';white-space:normal;height:auto;padding-top:8px;padding-bottom:8px;display:block;line-height:1.7;user-select:all';
-  const cmds = [
-    'git pull --rebase origin main',
-    'npm run convert -- 프로젝트이름 "PDF경로"',
-    'bash scripts/ship.sh "메시지"'
-  ];
-  f.innerHTML = '<b>새 프로젝트</b><br>' + cmds.map(c => `<code style="display:block;user-select:all">${c}</code>`).join('');
+  f.style.cssText += ';gap:10px;overflow-x:auto;white-space:nowrap';
+  const copy = async t => { try { await navigator.clipboard.writeText(t); window.PS?.toast?.('복사했습니다'); } catch (e) {} };
+  const step = (n, c) => `<span>${n}</span><code data-c='${c}' style="cursor:pointer" title="클릭하면 복사">${c}</code>`;
+  f.innerHTML = '<b>새 프로젝트</b>' +
+    step('①', 'git pull --rebase origin main') + '<span>→</span>' +
+    step('②', 'npm run convert -- 이름 "PDF경로"') + '<span>→</span>' +
+    step('③', 'bash scripts/ship.sh "메시지"');
+  f.onclick = e => { const c = e.target.closest('code'); if (c) copy(c.dataset.c); };
 })();
