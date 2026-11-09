@@ -1,0 +1,19 @@
+{
+  "title": "project-01",
+  "desc": "",
+  "accent": "",
+  "publish": false,
+  "total": 74,
+  "parts": [
+    {
+      "id": "1",
+      "title": "1. 전체",
+      "desc": "",
+      "range": [
+        1,
+        74
+      ]
+    }
+  ],
+  "pages": {}
+}
