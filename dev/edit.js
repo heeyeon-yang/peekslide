@@ -272,15 +272,107 @@
   PS.edit = { on: editOn, off: editOff, key: editKey, active: () => !!ed };
 })();
 
+
 (() => {
+  const PS = window.PS;
   const f = document.getElementById('foot');
   if (!f) return;
+  const DEV = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const copy = async t => { try { await navigator.clipboard.writeText(t); PS?.toast?.('복사했습니다'); } catch (e) {} };
+
+  // 푸터: 새 프로젝트 절차(클릭하면 그 줄만 복사) + 파트 편집 버튼
   f.style.cssText += ';gap:10px;overflow-x:auto;white-space:nowrap';
-  const copy = async t => { try { await navigator.clipboard.writeText(t); window.PS?.toast?.('복사했습니다'); } catch (e) {} };
   const step = (n, c) => `<span>${n}</span><code data-c='${c}' style="cursor:pointer" title="클릭하면 복사">${c}</code>`;
   f.innerHTML = '<b>새 프로젝트</b>' +
     step('①', 'git pull --rebase origin main') + '<span>→</span>' +
     step('②', 'npm run convert -- 이름 "PDF경로"') + '<span>→</span>' +
-    step('③', 'bash scripts/ship.sh "메시지"');
-  f.onclick = e => { const c = e.target.closest('code'); if (c) copy(c.dataset.c); };
+    step('③', 'bash scripts/ship.sh "메시지"') +
+    '<button id="bParts" class="btn" style="height:28px;font-size:13px;margin-left:auto;flex:none">파트 편집</button>';
+  f.onclick = e => {
+    if (e.target.closest('#bParts')) return openParts();
+    const c = e.target.closest('code');
+    if (c) copy(c.dataset.c);
+  };
+
+  // 파트(섹션) 편집 창
+  function openParts() {
+    const D = PS?.D;
+    if (!D || !D.id) { PS?.toast?.('프로젝트를 먼저 열어 주세요'); return; }
+    const total = D.total;
+    const rows = (D.parts || []).map(p => ({ name: String(p.title || '').replace(/^\d+\.\s*/, ''), desc: p.desc || '', a: p.range[0], b: p.range[1] }));
+    if (!rows.length) rows.push({ name: '전체', desc: '', a: 1, b: total });
+    let msg = '';
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:rgba(0,0,0,.5)';
+    const box = document.createElement('div');
+    box.style.cssText = 'width:min(580px,92vw);max-height:86vh;overflow:auto;padding:22px;border-radius:8px;background:var(--bg);color:var(--text);border:1px solid var(--line);box-shadow:var(--shadow)';
+    ov.appendChild(box); document.body.appendChild(ov);
+    const inp = 'height:34px;padding:0 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--text);font:inherit;font-size:14px';
+    const btn = 'height:34px;padding:0 14px;border:0;border-radius:6px;background:var(--fill);color:var(--text);font:inherit;font-size:14px;font-weight:600;cursor:pointer';
+    const draw = () => {
+      box.innerHTML =
+        `<h3 style="margin:0 0 4px;font-size:18px">파트 나누기</h3>` +
+        `<p style="margin:0 0 16px;color:var(--muted);font-size:13px">${esc(D.id)} · 전체 ${total}페이지 · 이름과 시작/끝 페이지를 적으세요 (페이지가 겹치면 안 돼요)</p>` +
+        rows.map((r, i) => `<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">` +
+          `<input data-i="${i}" data-k="name" value="${esc(r.name)}" placeholder="파트 이름" style="${inp};flex:1;min-width:0">` +
+          `<input data-i="${i}" data-k="a" type="number" min="1" max="${total}" value="${r.a}" style="${inp};width:72px">` +
+          `<span>~</span>` +
+          `<input data-i="${i}" data-k="b" type="number" min="1" max="${total}" value="${r.b}" style="${inp};width:72px">` +
+          `<button data-del="${i}" style="${btn}"${rows.length < 2 ? ' disabled' : ''}>삭제</button></div>`).join('') +
+        `<p id="pmsg" style="min-height:20px;margin:10px 0 0;font-size:13px;color:#e5484d">${esc(msg)}</p>` +
+        `<div style="display:flex;gap:8px;margin-top:8px"><button data-add style="${btn}">＋ 파트 추가</button><span style="flex:1"></span>` +
+        `<button data-cancel style="${btn}">취소</button><button data-save style="${btn};background:var(--accent);color:var(--on-accent)">저장</button></div>`;
+    };
+    const say = t => { msg = t; const e = box.querySelector('#pmsg'); if (e) e.textContent = t; };
+    const check = () => {
+      const l = rows.map(r => ({ ...r, a: Number(r.a), b: Number(r.b) }));
+      if (l.some(r => !r.name.trim())) return '파트 이름을 모두 적어 주세요';
+      if (l.some(r => /[<>]/.test(r.name))) return '이름에 < > 는 쓸 수 없어요';
+      if (l.some(r => !Number.isInteger(r.a) || !Number.isInteger(r.b) || r.a < 1 || r.b > total || r.a > r.b)) return `페이지는 1~${total} 안에서, 시작이 끝보다 크지 않게 적어 주세요`;
+      const s = [...l].sort((x, y) => x.a - y.a);
+      if (s.some((r, i) => i && r.a <= s[i - 1].b)) return '파트끼리 페이지가 겹쳐요';
+      return '';
+    };
+    const close = () => ov.remove();
+    const save = async () => {
+      const err = check();
+      if (err) return say(err);
+      const parts = rows.map(r => ({ name: r.name.trim(), desc: r.desc, a: Number(r.a), b: Number(r.b) }))
+        .sort((x, y) => x.a - y.a)
+        .map((r, i) => ({ id: String(i + 1), title: `${i + 1}. ${r.name}`, desc: r.desc, range: [r.a, r.b] }));
+      const tk = PS.admin?.token?.();
+      if (!DEV && !tk) return say('로그인이 만료되었습니다. 관리자 버튼으로 다시 로그인하세요.');
+      say('저장 중…');
+      try {
+        const r = await fetch(DEV ? '/__save' : PS.admin.api + '/save-parts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(DEV ? {} : { Authorization: 'Bearer ' + tk }) },
+          body: JSON.stringify({ deck: D.id, parts })
+        });
+        if (r.status === 401) return say('로그인이 만료되었습니다. 관리자 버튼으로 다시 로그인하세요.');
+        if (r.status === 409) return say('다른 저장과 겹쳤어요. 잠시 뒤 다시 눌러 주세요.');
+        if (!r.ok) return say('저장하지 못했습니다 (' + r.status + ')');
+        D.parts = parts;
+        close();
+        PS.toast?.('저장했습니다. 사이트 반영은 1~2분 뒤예요');
+        try { window.dispatchEvent(new Event('hashchange')); } catch (e) {}
+      } catch (e) { say(DEV ? '저장은 npm run dev 에서만 됩니다' : '저장하지 못했습니다. 잠시 뒤 다시 시도하세요'); }
+    };
+    box.addEventListener('input', e => {
+      const t = e.target;
+      if (t.dataset.i === undefined) return;
+      rows[+t.dataset.i][t.dataset.k] = t.value;
+    });
+    box.addEventListener('click', e => {
+      const t = e.target.closest('button');
+      if (!t) return;
+      if (t.dataset.del !== undefined) { rows.splice(+t.dataset.del, 1); msg = ''; draw(); }
+      else if ('add' in t.dataset) { const last = Math.max(...rows.map(r => Number(r.b) || 0)); rows.push({ name: '', desc: '', a: Math.min(total, last + 1), b: total }); msg = ''; draw(); }
+      else if ('cancel' in t.dataset) close();
+      else if ('save' in t.dataset) save();
+    });
+    ov.addEventListener('mousedown', e => { if (e.target === ov) close(); });
+    draw();
+  }
 })();
