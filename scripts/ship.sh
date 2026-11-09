@@ -23,5 +23,6 @@ read -r -p "push 할까요? (y/N) " ok
 [[ "$ok" =~ ^[yY]$ ]] || { echo "중단 (git add 는 된 상태, 취소: git reset)"; exit 1; }
 
 git commit -m "$MSG"
+git pull --rebase origin main
 git push origin main
 echo "push 완료 → https://github.com/heeyeon-yang/peekslide/actions"
