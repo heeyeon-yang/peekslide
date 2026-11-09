@@ -20,7 +20,7 @@ fi
 echo "---- 커밋될 파일 ----"
 git status --short
 read -r -p "push 할까요? (y/N) " ok
-[ "$ok" = "y" ] || { echo "중단 (git add 는 된 상태, 취소: git reset)"; exit 1; }
+[[ "$ok" =~ ^[yY]$ ]] || { echo "중단 (git add 는 된 상태, 취소: git reset)"; exit 1; }
 
 git commit -m "$MSG"
 git push origin main

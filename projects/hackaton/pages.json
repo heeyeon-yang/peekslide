@@ -2,7 +2,7 @@
   "title": "hackaton",
   "desc": "",
   "accent": "",
-  "publish": false,
+  "publish": true,
   "total": 23,
   "parts": [
     {
