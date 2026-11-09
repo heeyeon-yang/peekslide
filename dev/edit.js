@@ -271,3 +271,12 @@
   });
   PS.edit = { on: editOn, off: editOff, key: editKey, active: () => !!ed };
 })();
+
+(() => {
+  const f = document.getElementById('foot');
+  if (!f) return;
+  f.style.whiteSpace = 'nowrap';
+  f.style.overflow = 'hidden';
+  f.style.textOverflow = 'ellipsis';
+  f.innerHTML = '관리자 · ① git pull --rebase origin main ② npm run convert -- 이름 "PDF경로" ③ bash scripts/ship.sh "메시지"';
+})();
