@@ -1,0 +1,19 @@
+{
+  "title": "team3-meeting",
+  "desc": "",
+  "accent": "",
+  "publish": true,
+  "total": 6,
+  "parts": [
+    {
+      "id": "1",
+      "title": "1. 전체",
+      "desc": "",
+      "range": [
+        1,
+        6
+      ]
+    }
+  ],
+  "pages": {}
+}
