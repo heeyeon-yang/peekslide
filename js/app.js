@@ -12,7 +12,20 @@
   const partById = id => D.parts.find(p => p.id === String(id));
   const within = (r, list = SL) => list.filter(s => s.id >= r[0] && s.id <= r[1]);
   const slides = () => scope === 'all' ? SL : within(partById(scope).range);
-  const steps = n => pinfo(n).steps || [];
+  /* ---- pan: 가로로 긴 이미지 ---- */
+  const dims = {};
+  const loadDim = n => dims[n] ? Promise.resolve(dims[n]) : new Promise(res => { const im = new Image(); im.onload = () => res(dims[n] = { w: im.naturalWidth, h: im.naturalHeight }); im.onerror = () => res(null); im.src = imgOf(n); });
+  const panStops = n => {
+    const p = pinfo(n).pan; if (!p) return null;
+    if (Array.isArray(p.stops)) return p.stops;
+    const d = dims[n]; if (!d || !d.h) return [0];
+    const max = Math.max(0, Math.round(d.w * 1080 / d.h - 1920)), gap = p.gap || 1920, s = [];
+    for (let x = 0; x < max; x += gap) s.push(x);
+    s.push(max);
+    return s;
+  };
+  const steps = n => { const i = pinfo(n); return i.pan && !i.steps ? panStops(n).slice(1).map(x => ({ pan: x })) : (i.steps || []); };
+  const panAt = (n, k) => { if (!pinfo(n).pan) return null; let x = 0; steps(n).slice(0, k).forEach(s => { if (typeof s.pan === 'number') x = s.pan; }); return x; };
   const imgOf = n => D.img.replace('{n}', n);
   const curPage = () => slideOf(cur).frames[fi];
   const buildSlides = d => {
@@ -27,7 +40,7 @@
     }
     return out;
   };
-  const card = (s, i) => `<a class="card" style="--i:${Math.min(i, 24)}" href="${H('p', s.id)}"><div class="th"><span>${s.id}</span><img loading="lazy" alt="" src="${imgOf(lastOf(s))}" onerror="this.remove()"></div><div class="cap"><b>p.${s.id}${s.frames.length > 1 ? '–' + lastOf(s) : ''}</b>${D.pages[s.id]?.title || ''}</div></a>`;
+  const card = (s, i) => `<a class="card" style="--i:${Math.min(i, 24)}" href="${H('p', s.id)}"><div class="th"${D.pages[lastOf(s)]?.pan ? ' data-pan' : ''}><span>${s.id}</span><img loading="lazy" alt="" src="${imgOf(lastOf(s))}" onerror="this.remove()"></div><div class="cap"><b>p.${s.id}${s.frames.length > 1 ? '–' + lastOf(s) : ''}</b>${D.pages[s.id]?.title || ''}</div></a>`;
   const name = p => p.title.replace(/^\d+\.\s*/, '');
   const num = p => `<i class="no">${p.id}</i>`;
   const sec = p => `<div class="sec-row"><h2>${num(p)}${name(p)}</h2>${p.desc ? `<span class="desc">${p.desc}</span>` : ''}<span class="tag">p.${p.range[0]}–${p.range[1]}</span></div>`;
@@ -113,6 +126,7 @@
     if (deckId === id) return;
     deckId = id; D = DECKS[id]; SL = buildSlides(D); scope = 'all'; cur = 1; fi = 0; st = 0;
     buildChips(); applyAccent(D.accent); document.title = `${D.title} · PeekSlide`;
+    Object.keys(D.pages).filter(n => D.pages[n].pan).forEach(loadDim);
   }
 
   const fit = () => {
@@ -130,7 +144,8 @@
         ? `<iframe class="vid" style="${pos}" src="https://www.youtube-nocookie.com/embed/${v.id}?rel=0" allow="autoplay;fullscreen;encrypted-media" allowfullscreen></iframe>`
         : `<video class="vid" style="${pos}" src="${fileOf(v.src)}" controls playsinline></video>`;
     }
-    return `${ph}<img alt="${i.title}" src="${imgOf(n)}" onerror="this.remove()">${vid}`;
+    const img = `<img alt="${i.title}" src="${imgOf(n)}" onerror="this.remove()">`;
+    return `${ph}${i.pan ? `<div class="pan">${img}</div>` : img}${vid}`;
   };
   const layerHtml = (n, vis) => (pinfo(n).layers || []).map(L => {
     const [x, y, w, h] = L.rect || [0, 0, 1920, 1080];
@@ -191,6 +206,11 @@
   };
   function fx(anim) {
     const s = slideOf(cur), pn = s.frames[fi], h = st > 0 ? steps(pn)[st - 1] : null;
+    const px = panAt(pn, st);
+    if (px !== null) {
+      const pe = [...document.querySelectorAll('#stage > .sl')].pop()?.querySelector('.pan');
+      if (pe) { pe.style.transition = anim ? '' : 'none'; pe.style.transform = `translateX(${-px}px)`; if (!anim) void pe.offsetWidth; }
+    }
     spot((h?.box || []).map(([x, y, w, ht]) => ({ x, y, w, h: ht })), !anim, !!h?.ring, h?.dim, h?.round, h?.ringW);
     const fl = $('#flows');
     if (fl) { fl.classList.toggle('still', !anim); fl.innerHTML = (h?.flow || []).map(flowHtml).join(''); }
@@ -213,6 +233,8 @@
     im.src = imgOf(pn);
     (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => {
       if (t !== tok) return;
+      if (pinfo(pn).pan && im.naturalWidth) dims[pn] = { w: im.naturalWidth, h: im.naturalHeight };
+      st = Math.min(st, steps(pn).length);
       if (!$('#fxwrap')) { stage.innerHTML = `<div id="fxwrap">${FXSVG}</div><div id="lyrs"></div><div id="edit"></div>`; sp = []; spA = 0; }
       if (slideSwap) spot([], true);
       const olds = [...stage.querySelectorAll('.sl')];
@@ -242,7 +264,7 @@
       else if (i < l.length - 1) location.hash = H('p', l[i + 1].id);
     } else {
       if (st > 0) { st--; fx(true); }
-      else if (fi > 0) { fi--; st = steps(s.frames[fi]).length; show(false, true); }
+      else if (fi > 0) { fi--; st = 1e6; show(false, true); }
       else if (i > 0) { pendingLast = true; location.hash = H('p', l[i - 1].id); }
     }
   };
@@ -257,7 +279,7 @@
       if (s.id !== +h[3]) { location.hash = H('p', s.id); return; }
       body.classList.add('viewing');
       const f = pendingLast ? s.frames.length - 1 : 0;
-      view(s.id, f, pendingLast ? steps(s.frames[f]).length : 0); pendingLast = false;
+      view(s.id, f, pendingLast ? 1e6 : 0); pendingLast = false;
     } else {
       clearStage();
       body.classList.remove('viewing', 'present');

@@ -1,0 +1,5 @@
+/* 가로로 긴 이미지(pan) 페이지 */
+.sl{overflow:hidden}
+.pan{position:absolute;left:0;top:0;height:1080px;will-change:transform;transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.pan>img{position:static;height:100%;width:auto;max-width:none;display:block}
+.th[data-pan] img{object-position:left}
