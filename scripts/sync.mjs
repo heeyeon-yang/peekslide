@@ -1,3 +1,4 @@
+import { existsSync as ex } from "node:fs";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -40,7 +41,7 @@ export function readDecks() {
       ...j,
       id: e.name,
       base: `projects/${e.name}/`,
-      img: `projects/${e.name}/slides/{n}.png`,
+      img: `projects/${e.name}/slides/{n}.${ex(`projects/${e.name}/slides/1.webp`)?"webp":"png"}`,
       lock: lockOf(e.name),
     };
     if (!d.total) console.warn(`warn: ${e.name} has no total, run convert first`);

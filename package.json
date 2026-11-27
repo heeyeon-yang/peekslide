@@ -9,7 +9,8 @@
     "build": "node scripts/build.mjs",
     "preview": "vite preview",
     "convert": "node scripts/convert.mjs",
-    "sync": "node scripts/sync.mjs"
+    "sync": "node scripts/sync.mjs",
+    "webp": "node scripts/webp.mjs"
   },
   "repository": {
     "type": "git",
@@ -27,5 +28,8 @@
     "@napi-rs/canvas": "^1.1.0",
     "pdfjs-dist": "^6.5.438",
     "vite": "^8.3.6"
+  },
+  "dependencies": {
+    "sharp": "^0.35.5"
   }
 }
